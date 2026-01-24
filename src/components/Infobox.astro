@@ -1,0 +1,155 @@
+---
+// インターフェース（どの情報を受け取るか）を定義
+interface Props {
+  name: string;
+  nameEn?: string;
+  image?: string; // ? は「なくてもOK」という意味
+  imageCaption?: string; 
+  mail?: string;
+  birth?: string;
+  likeFood?: string;
+  kiraiFood?: string;
+  likeColors?: string;
+  likeAnimals?: string;
+  mostLikeAnimal?: string;
+  likePlant?: string;
+  latexnoyomi?: string;
+  workspace?: string;
+  twitter?: string;
+  bluesky?: string;
+  pixiv?: string;
+  oekakiapp?: string;
+
+}
+
+const { name, image, birth,oekakiapp,mail,nameEn,kiraiFood,workspace,twitter,bluesky,pixiv,imageCaption,likeAnimals,mostLikeAnimal,likeColors,likeFood,likePlant,latexnoyomi} = Astro.props;
+---
+
+<aside class="infobox">
+  <div class="infobox-header">
+    <div class="infobox-title">{name}</div>
+    {nameEn && <div class="infobox-subtitle">{nameEn}</div>}
+  </div>
+  
+  {image && (
+    <div class="infobox-image-container">
+      <img src={image} alt={name} class="infobox-image" />
+{imageCaption && <div class="infobox-caption" set:html={imageCaption} />}
+    </div>
+  )}
+
+<table class="infobox-table">
+    {birth && (
+      <tr>
+        <th>誕生日</th>
+        <td>{birth}</td>
+      </tr>
+    )}
+    {likeFood && (<tr><th>好きな食べ物</th><td>{likeFood}</td></tr>)}
+    {mail && (<tr><th></th><td>{mail}</td></tr>)}
+{likeColors && (<tr><th>好きな色</th><td>{likeColors}</td></tr>)}
+{likeAnimals && (<tr><th>好きな動物</th><td>{likeAnimals}</td></tr>)}
+{mostLikeAnimal && (<tr><th>最推し</th><td>{mostLikeAnimal}</td></tr>)}
+{likePlant && (<tr><th>好きな植物</th><td>{likePlant}</td></tr>)}
+{latexnoyomi && (<tr><th>想定されるLaTeXの読み方</th><td>{latexnoyomi}</td></tr>)}
+{workspace && (<tr><th>作業環境</th><td>{workspace}</td></tr>)}
+{twitter && (
+  <tr>
+    <th>twitter</th>
+    <td><a href={`https://X.com/${twitter}`} target="_blank" rel="noopener noreferrer">@{twitter}</a></td>
+  </tr>
+)}
+{bluesky && (
+  <tr>
+    <th>bluesky</th>
+    <td><a href={`https://bsky.app/profile/${bluesky}`} target="_blank" rel="noopener noreferrer">{bluesky}</a></td>
+  </tr>
+)}
+{pixiv && (
+  <tr>
+    <th>pixiv</th>
+    <td><a href={`https://www.pixiv.net/users/${pixiv}`} target="_blank" rel="noopener noreferrer">{pixiv}</a></td>
+  </tr>
+)}
+{kiraiFood && (<tr><th>苦手な食べ物</th><td>{kiraiFood}</td></tr>)}
+{oekakiapp && (<tr><th>使用ソフト</th><td>{oekakiapp}</td></tr>)}
+
+  </table>
+</aside>
+
+<style>
+    .infobox-caption a {
+    color: #0645ad;
+    text-decoration: underline;
+  }
+
+    .infobox-table td a {
+    color: #0645ad; /* Wikipediaっぽいリンクの色 */
+    text-decoration: none;
+  }
+  .infobox-table td a:hover {
+    text-decoration: underline; /* マウスを載せた時だけ下線を出す */
+  }
+
+    /* 英語表記（サブタイトル）のサイズ調整 */
+  .infobox-subtitle {
+    font-size: 0.85rem; /* 0.8emより少し小さく調整 */
+    color: #666;        /* 少し色を薄くするとWikipedia風になります */
+    margin-top: 2px;
+    text-align: center;
+  }
+
+  /* 画像の下の脚注（キャプション）のサイズ調整 */
+  .infobox-caption {
+    font-size: 0.7rem;  /* さらに小さく設定 */
+    color: #444;
+    margin-top: 4px;
+    line-height: 1.3;   /* 行間を少し詰める */
+    text-align: center;   /* 左寄せで見やすく */
+  }
+
+  .infobox {
+    float: right;
+    width: 200px;
+    margin: 0 0 1rem 1rem;
+    border: 1px solid #ccc;
+    background-color: #f8f9fa;
+    font-size: 0.8em;
+    padding: 10px;
+    font-family: sans-serif;
+  }
+  .infobox-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    background-color: #eaecf0;
+    padding: 5px;
+    margin-bottom: 10px;
+  }
+  .infobox-image {
+    width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+  .infobox-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .infobox-table th {
+    text-align: left;
+    width: 35%;
+    vertical-align: top;
+    padding: 3px 0;
+  }
+  .infobox-table td {
+    padding: 3px 0;
+  }
+  @media (max-width: 600px) {
+    .infobox {
+      float: none;
+      width: 100%;
+      margin: 0 0 1rem 0;
+    }
+  }
+</style>
