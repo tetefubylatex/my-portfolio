@@ -18,7 +18,92 @@
 }
 /* src/styles/global.css */
 
+/* 画像を包むリンクやdivの設定 */
+.hover-popup {
+  display: block;
+  text-decoration: none;
+  position: relative; /* 浮き上がりの基準にする */
+  z-index: 1;         /* 通常時の重なり順 */
+}
+
+/* 画像本体の設定 */
+.hover-popup img {
+  width: 100%;
+  height: auto;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* 影も一緒に動かす */
+  border: 1px solid #eee;
+  object-fit: cover;
+  object-position: top; /* 前回の「上基準」を維持 */
+}
+
+/* マウスを乗せた時の動き */
+.hover-popup:hover {
+  z-index: 10; /* 他の画像より手前に来るようにする */
+}
+
+.hover-popup:hover img {
+  transform: scale(1.15); /* 少し大きめに拡大 */
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* 浮かんでいるように見せる影 */
+  border-color: #fff; /* 枠の色を白くして目立たせる */
+}
+
+
+  .recent-works-section {
+    margin: 2rem 0;
+  }
+  .recent-grid img {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* 正方形に固定 */
+    
+    /* ここが魔法の修正ポイント */
+    object-fit: cover;
+    object-position: center 20%; /* 中央ではなく「上」を基準に表示する */
+    
+    border: 1px solid #eee;
+  }
+
+  .recent-grid {
+    display: grid;
+    /* 横に6個並べる。画面が狭いときは自動で調整される設定 */
+    grid-template-columns: repeat(6, 1fr); 
+    gap: 8px;
+  }
+
+  .recent-item img {
+    width: 100%;
+    aspect-ratio: 1 / 1; /* 正方形に統一する */
+    object-fit: cover;   /* 画像を切り抜いて枠にフィットさせる */
+    border: 1px solid #ccc;
+    transition: filter 0.3s;
+  }
+
+  .recent-item img:hover {
+    filter: brightness(1.2); /* マウスを乗せると少し明るくなる */
+  }
+
+  .view-more {
+    text-align: right;
+    font-size: 0.8rem;
+    text-transform: lowercase; /* 小文字揃え */
+    margin-top: 5px;
+  }
+
+  /* スマホ版では3列にする（6列だと小さすぎるため） */
+  @media (max-width: 600px) {
+    .recent-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
 /* global.css */
+  @media (max-width: 600px) {
+    .infobox {
+      float: none;       /* 右寄せを解除 */
+      width: 100%;       /* 横幅いっぱいに */
+      margin: 1rem 0;    /* 左右の余白を消す */
+      max-width: 100%;
+    }
+  }
 
 html {
   /* 標準が16pxなので、少し下げて15px相当にします */

@@ -5,6 +5,15 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+// 既存のインポートの下に追加
+const allWorks = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
+
+// 新しい順に並べ替えて、最初の6つだけを取り出す
+const recentWorks = allWorks
+  .reverse() // 後のファイル（新しいもの）を前に持ってくる
+  .slice(0, 6); // 0番目から6個分を切り出す
+---
+
 ---
 
 <!doctype html>
@@ -23,7 +32,7 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
   imageCaption='<a href="https://x.com/_TeLaX" target="_blank">twitter（現X）</a>のアイコン'
   twitter='_TeLaX'
   latexnoyomi='ラテックス、ラテフ、ラテック、ラーテック、レイテック、レイテックス'
-  likeAnimals='ウシ科🐃 猛禽類🦅 海獣🦭'
+  likeAnimals='ウシ科🐃 海獣🦭 鳥類全般🪿'
   mostLikeAnimal='ニホンカモシカ🐐'
   likeColors='#B53827'
   likePlant='Blacklotus'
@@ -34,22 +43,38 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
   oekakiapp='Procreate'
 ></Infobox>
 			<h2>LaTeX-Gallery</h2>
-			<p>
+			<p></br></br>
 			自称furry絵描きのLaTeXです。</br>
-			ウシ科の魅力を広げるべく活動しています。</br>
+			ウシ科の動物の魅力を広げるべく活動しています。</br>
+			ウシ科以外の動物も大体好きです。</br>
+			最近はポケモンも好きです。（節操がない）</br>
 			</p>
 			<figure class="main-image">
   <img src="/images/backgrounds/IMG_2402.jpeg" alt="テテフ">
   <figcaption>カプ・テテフがLaTeXを編集している様子</figcaption>
 </figure>
 
-			<p>作った作品や好きなコンテンツを語ったり、色んな活動している人ともっと交流してみたいと思ってこのサイトを作りました。</br>
-				以前はtwitterやpixivで積極的にイラストを投稿していたんですが、どうしてもそういうSNSは交流要素が希薄で不特定多数に見てもらうことが目的になってしまい、数字ばっか気にして辞めてしまったことがあるので</br>
-				自分の好き勝手できる環境なら続けられるんじゃないかな〜と思って初めてみた次第です。</br>
+			<p>
+				作った作品や好きなコンテンツを語ったり、色んな活動している人ともっと交流してみたいと思ってこのサイトを作りました。</br>
 				更新予定のコンテンツとして、描いたイラストの制作メモ的な話や、好きなモノの自分語り記事などを予定しています。
 				</p>
+				<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
+  <section class="recent-works-section">
+  <h3>Recent Works</h3>
+  <div class="recent-grid">
+  {recentWorks.map((work) => (
+    <a href="/gallery" class="hover-popup">
+      <img src={work.default.src} alt="最新の作品" />
+    </a>
+  ))}
+</div>
+
+
+  <p class="view-more"><a href="/gallery">view more...</a></p>
+</section>
+
 			<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
-  <h2>Free Drawing Space 🎨</h2>
+  <h3>Free Drawing Space 🎨</h3>
   <p>なかよく使おうね！！</p>
   
   <iframe 
@@ -57,28 +82,22 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
     style="width: 100%; height: 500px; border: 2px solid #eee; border-radius: 8px;"
     title="Drawing Board">
   </iframe>
-</section>
+  <p style="text-align: center; text-transform: lowercase; font-size: 0.75rem; color: #666;">
+  リアルタイムで共有されます！
+</p>
 
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
 			<style>
-				
+	.recent-grid {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 10px;
+	}
+	.recent-grid img {
+		width: 100%;
+		aspect-ratio: 1 / 1;
+		object-fit: cover;
+		border: 1px solid #eee;
+	}
   main {
     /* メインコンテンツの幅を広げる（元はもっと狭いはずです） */
     width: 100%;
