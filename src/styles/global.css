@@ -16,6 +16,61 @@
 		0 2px 6px rgba(var(--gray), 25%), 0 8px 24px rgba(var(--gray), 33%), 0 16px 32px
 		rgba(var(--gray), 33%);
 }
+/* src/styles/global.css */
+
+/* global.css */
+
+html {
+  /* 標準が16pxなので、少し下げて15px相当にします */
+  font-size: 20px; 
+}
+
+body {
+  /* 本文の読みやすさを決める設定 */
+  line-height: 1.6;   /* 行間を少し広げて、小さくても読みやすく */
+  color: #202122;     /* Wikipediaで使われる黒に近い色 */
+  font-family: sans-serif; /* 基本はゴシック体 */
+}
+
+/* 段落（本文）をさらに微調整したい場合 */
+p {
+  font-size: 0.95rem; /* 基準よりさらにほんの少し小さく */
+  margin: 0.5rem 0 1rem 0;
+}
+
+/* 画像と脚注（共通パーツ） */
+.main-image {
+  margin: 1.5rem 0;
+  padding: 8px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  max-width: fit-content;
+}
+
+.main-image /* 画像が枠からはみ出さないようにする魔法のコード */
+img {
+  max-width: 100%; /* 親要素の幅100%を上限にする */
+  height: auto;    /* 縦横比を保ったまま縮小する */
+  display: block;  /* 画像の下に謎の隙間ができるのを防ぐ */
+}
+
+/* 脚注付き画像（figure）の中の画像も念のため固定 */
+.main-image img {
+  width: 100%;     /* 枠いっぱいに広げる */
+  max-width: 400px; /* 【重要】大きすぎると5る場合は、ここで最大幅を指定（例: 400px） */
+  height: auto;
+}
+
+
+.main-image figcaption {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: #444;
+  line-height: 1.4;
+}
+
+/* ついでにネオン文字やInfoboxの基本スタイルもここに移すと、ブログでも使えます！ */
+
 @font-face {
 	font-family: "Atkinson";
 	src: url("/fonts/atkinson-regular.woff") format("woff");

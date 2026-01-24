@@ -39,45 +39,82 @@ const { name, image, birth,oekakiapp,mail,nameEn,kiraiFood,workspace,twitter,blu
   )}
 
 <table class="infobox-table">
-    {birth && (
-      <tr>
-        <th>誕生日</th>
-        <td>{birth}</td>
-      </tr>
-    )}
-    {likeFood && (<tr><th>好きな食べ物</th><td>{likeFood}</td></tr>)}
-    {mail && (<tr><th></th><td>{mail}</td></tr>)}
-{likeColors && (<tr><th>好きな色</th><td>{likeColors}</td></tr>)}
-{likeAnimals && (<tr><th>好きな動物</th><td>{likeAnimals}</td></tr>)}
-{mostLikeAnimal && (<tr><th>最推し</th><td>{mostLikeAnimal}</td></tr>)}
-{likePlant && (<tr><th>好きな植物</th><td>{likePlant}</td></tr>)}
-{latexnoyomi && (<tr><th>想定されるLaTeXの読み方</th><td>{latexnoyomi}</td></tr>)}
-{workspace && (<tr><th>作業環境</th><td>{workspace}</td></tr>)}
-{twitter && (
-  <tr>
-    <th>twitter</th>
-    <td><a href={`https://X.com/${twitter}`} target="_blank" rel="noopener noreferrer">@{twitter}</a></td>
-  </tr>
-)}
-{bluesky && (
-  <tr>
-    <th>bluesky</th>
-    <td><a href={`https://bsky.app/profile/${bluesky}`} target="_blank" rel="noopener noreferrer">{bluesky}</a></td>
-  </tr>
-)}
-{pixiv && (
-  <tr>
-    <th>pixiv</th>
-    <td><a href={`https://www.pixiv.net/users/${pixiv}`} target="_blank" rel="noopener noreferrer">{pixiv}</a></td>
-  </tr>
-)}
-{kiraiFood && (<tr><th>苦手な食べ物</th><td>{kiraiFood}</td></tr>)}
-{oekakiapp && (<tr><th>使用ソフト</th><td>{oekakiapp}</td></tr>)}
 
-  </table>
+  {birth && (<tr><th>誕生日</th><td>{birth}</td></tr>)}
+
+  {workspace && (<tr><th>作業環境</th><td>{workspace}</td></tr>)}
+    {oekakiapp && (<tr><th>使用ソフト</th><td>{oekakiapp}</td></tr>)}
+  {latexnoyomi && (<tr><th>想定されるLaTeXの読み方</th><td>{latexnoyomi}</td></tr>)}
+  {likeColors && (
+  <tr>
+    <th>好きな色</th>
+    <td style={`color: ${likeColors}; font-style: italic; font-weight: bold;`}>
+      {likeColors}
+    </td>
+  </tr>
+)}
+  {likeAnimals && (<tr><th>好きな動物</th><td>{likeAnimals}</td></tr>)}
+  {mostLikeAnimal && (<tr><th>最推し</th><td>{mostLikeAnimal}</td></tr>)}
+  {likePlant && (
+  <tr>
+    <th>好きな植物</th>
+    <td>
+      <div class="marquee-container">
+        <div class="marquee-text">{likePlant}</div>
+      </div>
+    </td>
+  </tr>
+)}
+  {likeFood && (<tr><th>好きな食べ物</th><td>{likeFood}</td></tr>)}
+  {kiraiFood && (<tr><th>苦手な食べ物</th><td>{kiraiFood}</td></tr>)}
+
+  {twitter && (<tr><th>twitter</th><td><a href={`https://X.com/${twitter}`} ...>@{twitter}</a></td></tr>)}
+  {bluesky && (<tr><th>bluesky</th><td><a href={`https://bsky.app/profile/${bluesky}`} ...>{bluesky}</a></td></tr>)}
+  {pixiv && (<tr><th>pixiv</th><td><a href={`https://www.pixiv.net/users/${pixiv}`} ...>{pixiv}</a></td></tr>)}
+  {mail && (<tr><th></th><td>{mail}</td></tr>)}
+</table>
 </aside>
 
 <style>
+  
+  /* 電光掲示板の土台（ネオン管のケース風） */
+  .marquee-container {
+    width: 100%;
+    max-width: 120px; /* 横伸び防止 */
+    overflow: hidden;
+    background: #050505; /* 真っ黒に近い背景 */
+    border: 2px solid #333;
+    border-radius: 4px;
+    white-space: nowrap;
+    display: block;
+    box-shadow: inset 0 0 5px #000; /* 内側に影を入れて奥行きを出す */
+  }
+
+  /* ネオン文字の設定 */
+  .marquee-text {
+    display: inline-block;
+    color: #fff; /* 文字の芯は白 */
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    padding-right: 50px; /* 文字の後ろに少し余白 */
+    
+    /* ここがネオンの肝！緑色の光を重ねる */
+    text-shadow: 
+      0 0 5px #fff, 
+      0 0 10px #00ff00, 
+      0 0 20px #00ff00, 
+      0 0 40px #00ff00;
+      
+    animation: marquee 3s linear infinite;
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(100%); }   /* 右端からスタート */
+    100% { transform: translateX(-100%); } /* 左端まで消える */
+  }
+
+
+
     .infobox-caption a {
     color: #0645ad;
     text-decoration: underline;
@@ -110,7 +147,7 @@ const { name, image, birth,oekakiapp,mail,nameEn,kiraiFood,workspace,twitter,blu
 
   .infobox {
     float: right;
-    width: 200px;
+    width: 280px;
     margin: 0 0 1rem 1rem;
     border: 1px solid #ccc;
     background-color: #f8f9fa;
