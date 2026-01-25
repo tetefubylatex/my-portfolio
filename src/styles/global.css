@@ -42,10 +42,14 @@
 }
 
 .hover-popup:hover img {
-  transform: scale(1.15); /* 少し大きめに拡大 */
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* 浮かんでいるように見せる影 */
-  border-color: #fff; /* 枠の色を白くして目立たせる */
+  transform: scale(1.15);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  border-color: #fff;
+  
+  /* ↓ これを追加：明るさを80%に落とす（少し暗くなる） */
+  filter: brightness(0.8); 
 }
+
 
 
   .recent-works-section {
@@ -293,3 +297,25 @@ hr {
 	/* added line to stop words getting smushed together (as they go onto separate lines and some screen readers do not understand line feeds as a space */
 	white-space: nowrap;
 }
+/* 全ての要素が画面幅を超えないようにする設定 */
+html, body {
+  overflow-x: hidden; /* 横揺れを防止 */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* 画像が画面からはみ出さないように強制 */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* メインコンテンツの外枠を調整 */
+main {
+  width: 100%;
+  max-width: 100vw;
+  padding: 1em; /* 左右に少し余白を作る */
+  box-sizing: border-box;
+}
+

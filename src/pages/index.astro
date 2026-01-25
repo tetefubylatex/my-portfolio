@@ -8,10 +8,10 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 // 既存のインポートの下に追加
 const allWorks = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
 
-// 新しい順に並べ替えて、最初の6つだけを取り出す
+// 新しい順に並べ替えて、最初の4つだけを取り出す
 const recentWorks = allWorks
   .reverse() // 後のファイル（新しいもの）を前に持ってくる
-  .slice(0, 6); // 0番目から6個分を切り出す
+  .slice(0, 4); // 0番目から4個分を切り出す
 ---
 
 ---
@@ -32,20 +32,20 @@ const recentWorks = allWorks
   imageCaption='<a href="https://x.com/_TeLaX" target="_blank">twitter（現X）</a>のアイコン'
   twitter='_TeLaX'
   latexnoyomi='ラテックス、ラテフ、ラテック、ラーテック、レイテック、レイテックス'
-  likeAnimals='ウシ科🐃 海獣🦭 鳥類全般🪿'
+  likeAnimals='ウシ科🐃 海獣🦭 鳥類全般🦆'
   mostLikeAnimal='ニホンカモシカ🐐'
   likeColors='#B53827'
-  likePlant='Blacklotus'
+  likePlant='Black Lotus'
   birth='8月16日'
-  likeFood='そば 汁無し麺 ホタテ 日本酒🍶'
+  likeFood='そば ホタテ 日本酒🍶 辛いもの🔥'
   kiraiFood='納豆 コーヒー 果物全般'
   workspace='iPad Pro 12.9(6th gen)とApple pencil'
   oekakiapp='Procreate'
 ></Infobox>
-			<h2>LaTeX-Gallery</h2>
+			<h1>LaTeX-Gallery</h1>
 			<p></br></br>
 			自称furry絵描きのLaTeXです。</br>
-			ウシ科の動物の魅力を広げるべく活動しています。</br>
+			ウシ科動物の魅力を広めるべく活動しています。</br>
 			ウシ科以外の動物も大体好きです。</br>
 			最近はポケモンも好きです。（節操がない）</br>
 			</p>
@@ -70,7 +70,7 @@ const recentWorks = allWorks
 </div>
 
 
-  <p class="view-more"><a href="/gallery">view more...</a></p>
+  <p class="view-more"><a href="/gallery">もっと見る</a></p>
 </section>
 
 			<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
