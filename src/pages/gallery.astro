@@ -1,11 +1,8 @@
 ---
 import Layout from '../layouts/BlogPost.astro';
 
-// 1. 変数 images を確実に定義する
 let images = [];
-
 try {
-  // 2. サブフォルダまで含めて画像を探す（ワイルドカードを使用）
   images = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
 } catch (e) {
   console.log("画像が見つかりませんでした");
@@ -19,29 +16,79 @@ const props = {
 ---
 
 <Layout {...props}>
-	<h1>Gallery</h1>
-	
-	<div class="gallery-grid">
-  {images.map((img) => (
-    <div class="hover-popup">
-      <img src={img.default.src} alt="作品" loading="lazy" />
-    </div>
-  ))}
-</div>
+	<style is:global>
+    /* テンプレートの内側の制限を一旦解除 */
+  article, .prose {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
 
+  /* ★ここがポイント：mainタグを1080pxに固定して中央に寄せる */
+  main {
+    max-width: 1080px !important; /* 強制的に1080pxにする */
+    margin-left: auto !important;  /* 右余白を自動で作り中央へ */
+    margin-right: auto !important; /* 左余白を自動で作り中央へ */
+    width: 100% !important;
+    padding: 2rem 1rem !important; /* スマホ時のための左右マージン */
+  }
+
+  /* 3. タイトルや日付を完全に消し去る */
+  .title, .date, hr, h1 {
+    display: none !important;
+  }
+
+	/* 4. スムーズスクロールをサイト全体に適用 */
+	html {
+		scroll-behavior: smooth;
+	}
+	
+</style>
+	<div class="full-gallery">
+		{images.length > 0 ? (
+			images.map((img) => (
+				<div class="hover-popup">
+					<img src={img.default.src} alt="作品" loading="lazy" />
+				</div>
+			))
+		) : (
+			<p>画像が見つかりません。</p>
+		)}
+	</div>
 </Layout>
 
 <style>
-	.gallery-grid {
+	.full-gallery {
 		display: grid;
-		grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-		gap: 20px;
-		padding: 20px 0;
-	}
-	.gallery-item img {
+		/* 1枚あたりを少し小さくして「敷き詰め感」をアップ */
+		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+		gap: 10px; /* ギチギチにするなら0 */
+		padding: 0;
 		width: 100%;
-		height: auto;
-		border: 1px solid #ccc;
-		box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+	}
+
+	.full-gallery img {
+		width: 100%;
+		object-fit: cover;
+		object-position: center 20%;
+		display: block;
+		transition: transform 0.3s ease, filter 0.3s ease;
+	}
+
+	/* スマホ版：2列でギチギチにする */
+	@media (max-width: 720px) {
+		.full-gallery {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	/* ホバー演出 */
+	.hover-popup:hover img {
+		transform: scale(1.1);
+		filter: brightness(0.7);
+		z-index: 10;
+		position: relative;
+	}
+	.hover-popup {
+		overflow: visible; /* 拡大した時に切れないように */
 	}
 </style>

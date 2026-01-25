@@ -25,6 +25,16 @@
   position: relative; /* 浮き上がりの基準にする */
   z-index: 1;         /* 通常時の重なり順 */
 }
+/* サイト全体のコンテンツ幅を1080pxに統一 */
+main {
+  width: 100%;
+  max-width: 1080px; /* ここが黄金比！ */
+  margin: 0 auto;    /* 左右中央に寄せる */
+  padding: 2rem 1rem; /* スマホの時のために左右に少しだけ余白 */
+  box-sizing: border-box;
+}
+
+/* ギャラリーなどのフル幅要素も、mainの中ならこれに沿うようになります */
 
 /* 画像本体の設定 */
 .hover-popup img {
@@ -46,6 +56,11 @@
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   border-color: #fff;
   
+  html {
+  /* スクロールをぬるぬるにする魔法の一行 */
+  scroll-behavior: smooth;
+}
+
   /* ↓ これを追加：明るさを80%に落とす（少し暗くなる） */
   filter: brightness(0.8); 
 }
