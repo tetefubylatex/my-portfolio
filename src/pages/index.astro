@@ -14,8 +14,6 @@ const recentWorks = allWorks
   .slice(0, 4); // 0番目から4個分を切り出す
 ---
 
----
-
 <!doctype html>
 <html lang="ja">
 	<head>
@@ -31,19 +29,20 @@ const recentWorks = allWorks
   image="/images/backgrounds/IMG_2416.jpeg"
   imageCaption='<a href="https://x.com/_TeLaX" target="_blank">twitter（現X）</a>のアイコン'
   twitter='_TeLaX'
-  latexnoyomi='ラテックス、ラテフ、ラテック、ラーテック、レイテック、レイテックス'
+  latexnoyomi='ラテックス、ラテフ、ラテック、ラーテック、レイテフ、レイテック、レイテックス'
   likeAnimals='ウシ科🐃 海獣🦭 鳥類全般🦆'
   mostLikeAnimal='ニホンカモシカ🐐'
   likeColors='#B53827'
   likePlant='Black Lotus'
   birth='8月16日'
-  likeFood='そば ホタテ 日本酒🍶 辛いもの🔥'
+  likeFood='そば 汁無し麺 ホタテ 日本酒🍶 辛いもの🔥'
   kiraiFood='納豆 コーヒー 果物全般'
   workspace='iPad Pro 12.9(6th gen)とApple pencil'
   oekakiapp='Procreate'
 ></Infobox>
-			<h1>LaTeX-Gallery</h1>
-			<p></br></br>
+			<h2>LaTeX-Gallery</h2>
+      	<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;"></section>
+			<p></br>
 			自称furry絵描きのLaTeXです。</br>
 			ウシ科動物の魅力を広めるべく活動しています。</br>
 			ウシ科以外の動物も大体好きです。</br>
@@ -56,7 +55,7 @@ const recentWorks = allWorks
 
 			<p>
 				作った作品や好きなコンテンツを語ったり、色んな活動している人ともっと交流してみたいと思ってこのサイトを作りました。</br>
-				更新予定のコンテンツとして、描いたイラストの制作メモ的な話や、好きなモノの自分語り記事などを予定しています。
+				更新予定のコンテンツとして、描いたイラストの制作メモ的な話や、好きなモノの自分語り記事などを予定しています。</br>
 				</p>
 				<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
   <section class="recent-works-section">
@@ -87,17 +86,31 @@ const recentWorks = allWorks
 </p>
 
 			<style>
-	.recent-grid {
-		display: grid;
-		grid-template-columns: repeat(4, 1fr);
-		gap: 10px;
-	}
-	.recent-grid img {
-		width: 100%;
-		aspect-ratio: 1 / 1;
-		object-fit: cover;
-		border: 1px solid #eee;
-	}
+  .recent-grid {
+    display: grid;
+    /* デフォルト（PC）は4列 */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+  }
+
+  /* スマホ版（画面幅が720px以下のとき）の調整 */
+  @media (max-width: 720px) {
+    .recent-grid {
+      /* ここを 2列 に変更！ */
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px; /* スマホでは間隔を少し狭くすると見栄えが良いです */
+    }
+  }
+
+  .recent-grid img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    object-position: center 20%; /* 「顔が見切れない」設定を維持 */
+    border: 1px solid #eee;
+  }
+
   main {
     /* メインコンテンツの幅を広げる（元はもっと狭いはずです） */
     width: 100%;
