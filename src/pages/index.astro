@@ -4,6 +4,7 @@ import Infobox from '../components/Infobox.astro';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 // 既存のインポートの下に追加
 const allWorks = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
@@ -26,8 +27,8 @@ const recentWorks = allWorks
 <Infobox 
   name="テテフでLaTeX" 
   nameEn="LaTeX"
-  image="/images/backgrounds/IMG_2416.jpeg"
-  imageCaption='<a href="https://x.com/_TeLaX" target="_blank">twitter（現X）</a>のアイコン'
+  image="/images/backgrounds/IMG_2402.jpeg"
+  imageCaption='カプ・テテフがLaTeXを編集している様子'
   twitter='_TeLaX'
   latexnoyomi='ラテックス、ラテフ、ラテック、ラーテック、レイテフ、レイテック、レイテックス'
   likeAnimals='ウシ科🐃 海獣🦭 鳥類全般🦆'
@@ -49,8 +50,8 @@ const recentWorks = allWorks
 			最近はポケモンも好きです。（節操がない）</br>
 			</p>
       <figure class="main-image">
-  <img src="/images/backgrounds/IMG_2402.jpeg" alt="カプ・テテフがLaTeXを編集している様子">
-  <figcaption>カプ・テテフがLaTeXを編集している様子</figcaption>
+  <img src="/images/backgrounds/IMG_2416.jpeg" alt="サザンカ">
+  <figcaption>ジャージー種のサザンカ</figcaption>
 </figure>
 			
 
@@ -62,12 +63,19 @@ const recentWorks = allWorks
   <section class="recent-works-section">
   <h3>Recent Works</h3>
   <div class="recent-grid">
-  {recentWorks.map((work) => (
-    <a href="/gallery" class="hover-popup">
-      <img src={work.default.src} alt="最新の作品" />
-    </a>
-  ))}
+    {recentWorks.map((img) => {
+        // ここでも同様にslugを計算します
+        const filename = img.default.src.split('/').pop().split('?')[0];
+        const slug = filename.split('.')[0];
+
+        return (
+            <a href={`/works/${slug}`} class="hover-popup">
+                <img src={img.default.src} alt="最新作" />
+            </a>
+        );
+    })}
 </div>
+
 
 
   <p class="view-more"><a href="/gallery">もっと見る</a></p>
@@ -94,7 +102,13 @@ const recentWorks = allWorks
     gap: 15px;
     margin: 20px 0;
   }
-
+main {
+    /* メインコンテンツの幅を広げる（元はもっと狭いはずです） */
+    width: 100%;
+    max-width: 1080px; 
+    margin: 0 auto;
+    padding: 2em;
+  }
   /* スマホ版（画面幅が720px以下のとき）の調整 */
   @media (max-width: 720px) {
     .recent-grid {

@@ -2,93 +2,134 @@
 import Layout from '../layouts/BlogPost.astro';
 
 let images = [];
+let infoFiles = [];
 try {
   images = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
+  infoFiles = await Astro.glob('../assets/works/**/*.json');
 } catch (e) {
-  console.log("画像が見つかりませんでした");
+  console.log("読み込みエラー");
 }
 
-const props = {
-	title: 'Gallery',
-	description: '作品集',
-	pubDate: new Date(),
-};
+// 画像とJSONを紐付けたデータリストを作成
+const allWorks = images.map(img => {
+  const imagePath = img.file || img.default.src;
+  const filename = imagePath.split('/').pop().split('?')[0];
+  const slug = filename.split('.')[0];
+  const info = infoFiles.find(f => (f.default?.id === slug));
+  
+  return {
+    slug,
+    src: img.default.src,
+    tags: info?.default?.tags || []
+  };
+});
+
+// 全タグ抽出
+const allTags = [...new Set(allWorks.flatMap(work => work.tags))];
+
+const props = { title: 'Gallery', description: '作品集', pubDate: new Date() };
 ---
 
 <Layout {...props}>
-	<style is:global>
-    /* テンプレートの内側の制限を一旦解除 */
-  article, .prose {
-    max-width: 100% !important;
-    width: 100% !important;
-  }
+    <style is:global>
+        main, .container, article, .content, .prose {
+            max-width: 1080px !important; 
+            margin: 0 auto !important; 
+            width: 100% !important; 
+        }
+        /* Blogレイアウト特有のタイトル等の余白を消す */
+        .title, .date, hr { display: none !important; }
+    </style>
 
-  /* ★ここがポイント：mainタグを1080pxに固定して中央に寄せる */
-  main {
-    max-width: 1080px !important; /* 強制的に1080pxにする */
-    margin-left: auto !important;  /* 右余白を自動で作り中央へ */
-    margin-right: auto !important; /* 左余白を自動で作り中央へ */
-    width: 100% !important;
-    padding: 2rem 1rem !important; /* スマホ時のための左右マージン */
-  }
+    <div class="gallery-page-container">
+        <div class="filter-container">
+            <button class="filter-btn active" data-tag="all">All</button>
+            {allTags.map(tag => (
+                <button class="filter-btn" data-tag={tag}>#{tag}</button>
+            ))}
+        </div>
 
-  /* 3. タイトルや日付を完全に消し去る */
-  .title, .date, hr, h1 {
-    display: none !important;
-  }
+        <div class="full-gallery">
+            {allWorks.map((work) => (
+                <div class="work-item" data-tags={JSON.stringify(work.tags)}>
+                    <a href={`/works/${work.slug}`} class="hover-popup">
+                        <img src={work.src} alt="作品" loading="lazy" />
+                    </a>
+                </div>
+            ))}
+        </div>
+    </div>
 
-	/* 4. スムーズスクロールをサイト全体に適用 */
-	html {
-		scroll-behavior: smooth;
-	}
-	
-</style>
-	<div class="full-gallery">
-		{images.length > 0 ? (
-			images.map((img) => (
-				<div class="hover-popup">
-					<img src={img.default.src} alt="作品" loading="lazy" />
-				</div>
-			))
-		) : (
-			<p>画像が見つかりません。</p>
-		)}
-	</div>
+    <script>
+        const buttons = document.querySelectorAll('.filter-btn');
+        const items = document.querySelectorAll('.work-item');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTag = btn.getAttribute('data-tag');
+
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                items.forEach(item => {
+                    const itemTags = JSON.parse(item.getAttribute('data-tags'));
+                    if (targetTag === 'all' || itemTags.includes(targetTag)) {
+                        (item as HTMLElement).style.display = 'block';
+                    } else {
+                        (item as HTMLElement).style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
 </Layout>
 
+
+
+
 <style>
-	.full-gallery {
-		display: grid;
-		/* 1枚あたりを少し小さくして「敷き詰め感」をアップ */
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-		gap: 10px; /* ギチギチにするなら0 */
-		padding: 0;
-		width: 100%;
-	}
+    
+.filter-container { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-btn {
+        padding: 5px 15px; border: 1px solid #ddd; background: white; border-radius: 20px;
+        cursor: pointer; transition: 0.3s; font-size: 0.9rem;
+    }
+    .filter-btn.active { background: #333; color: white; border-color: #333; }
+    
+    .full-gallery {
+        display: grid;
+        /* 1枚あたりを少し小さくして「敷き詰め感」をアップ */
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px; /* ギチギチにするなら0 */
+        padding: 0;
+        width: 100%;
+    }
 
-	.full-gallery img {
-		width: 100%;
-		object-fit: cover;
-		object-position: center 20%;
-		display: block;
-		transition: transform 0.3s ease, filter 0.3s ease;
-	}
+    .full-gallery img {
+        width: 100%;
+        object-fit: cover;
+        object-position: center 20%;
+        display: block;
+        transition: transform 0.3s ease, filter 0.3s ease;
+    }
 
-	/* スマホ版：2列でギチギチにする */
-	@media (max-width: 720px) {
-		.full-gallery {
-			grid-template-columns: repeat(2, 1fr);
-		}
-	}
+    /* スマホ版：2列でギチギチにする */
+    @media (max-width: 720px) {
+        .full-gallery {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
 
-	/* ホバー演出 */
-	.hover-popup:hover img {
-		transform: scale(1.1);
-		filter: brightness(0.7);
-		z-index: 10;
-		position: relative;
-	}
-	.hover-popup {
-		overflow: visible; /* 拡大した時に切れないように */
-	}
+    /* ホバー演出 */
+    .hover-popup:hover img {
+        transform: scale(1.1);
+        filter: brightness(0.7);
+        z-index: 10;
+        position: relative;
+    }
+    .hover-popup {
+        overflow: visible; /* 拡大した時に切れないように */
+    }
 </style>
+
+

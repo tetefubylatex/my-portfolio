@@ -1,0 +1,143 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Infobox from '../components/Infobox.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import '../../styles/global.css'; 
+
+export async function getStaticPaths() {
+  const images = await Astro.glob('../../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
+  const infoFiles = await Astro.glob('../../assets/works/**/*.json');
+
+  return images.map((img) => {
+    const imagePath = img.file || img.default.src;
+    const filename = imagePath.split('/').pop().split('?')[0];
+    const slug = filename.split('.')[0];
+    const infoFile = infoFiles.find((f) => (f.default?.id === slug));
+
+    let data = { title: slug, date: "2026.01.26", memo: "説明文がまだありません。", tags: [] };
+    if (infoFile) {
+      const content = infoFile.default || infoFile;
+      data = {
+        title: content.title || slug,
+        date: content.date || "2026.01.26",
+        memo: content.memo || "説明文がありません。",
+        tags: content.tags || []
+      };
+    }
+    return { params: { slug }, props: { img, info: data } };
+  });
+}
+
+const { img, info } = Astro.props;
+
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+// 全体共通のCSS（もしグローバルなCSSファイルがあればインポート）
+// import '../styles/global.css'; 
+---
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{info.title}</title>
+    
+    <style is:global>
+        /* サイト全体のフォントや基本設定を復元 */
+        :root {
+            --accent: #2337ff;
+        }
+        html {
+            font-family: system-ui, sans-serif;
+            background-color: #F6F6F6;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        /* 画像がはみ出さないように設定 */
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <Header />
+
+    <main class="work-container">
+        <nav class="back-nav">
+            <a href="/gallery">← Back to Gallery</a>
+        </nav>
+
+        <article class="work-card">
+            <div class="image-area">
+                <img src={img.default.src} alt={info.title} />
+            </div>
+
+            <div class="info-area">
+                <h1>{info.title}</h1>
+                <div class="meta"><span>Added: {info.date}</span></div>
+                <div class="tags">
+                    {info.tags.map(tag => <span class="tag">#{tag}</span>)}
+                </div>
+                <hr />
+                <div class="memo-section">
+                    <h3>Memo</h3>
+                    <p>{info.memo}</p>
+                </div>
+            </div>
+        </article>
+    </main>
+
+    <Footer />
+</body>
+</html>
+
+<style>
+    /* ページの個別スタイル（1080px制限） */
+    .work-container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        box-sizing: border-box;
+    }
+    .back-nav { margin-bottom: 20px; }
+    .back-nav a { text-decoration: none; color: #888; font-weight: bold; }
+
+    .work-card {
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .image-area img {
+        width: 100%;
+        display: block;
+    }
+    .info-area { padding: 40px; }
+    h1 { margin: 0; font-size: 2.2rem; line-height: 1.2; }
+    .meta { color: #999; margin: 10px 0; font-size: 0.9rem; }
+    .tags { margin: 20px 0; }
+    .tag {
+        display: inline-block;
+        background: #f0f0f0;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-right: 8px;
+        color: #666;
+    }
+    hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
+    .memo-section h3 { font-size: 1.1rem; color: #333; margin-bottom: 10px; }
+    .memo-section p { white-space: pre-wrap; line-height: 1.8; color: #444; }
+
+    @media (max-width: 720px) {
+        .info-area { padding: 20px; }
+        h1 { font-size: 1.5rem; }
+    }
+</style>
