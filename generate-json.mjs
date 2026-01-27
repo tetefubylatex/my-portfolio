@@ -1,17 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
-// 親となるフォルダ（この中を全探索します）
+// 画像が保存されているルートディレクトリ
 const rootWorksDir = './src/assets/works';
 
-console.log('--- JSON再帰生成スクリプト開始 ---');
-
-if (!fs.existsSync(rootWorksDir)) {
-  console.error(`❌ フォルダが見つかりません: ${rootWorksDir}`);
-  process.exit(1);
-}
-
-// フォルダ内を再帰的に探索する関数
 function walkAndGenerate(dir) {
   const files = fs.readdirSync(dir);
 
@@ -20,28 +12,30 @@ function walkAndGenerate(dir) {
     const stats = fs.statSync(fullPath);
 
     if (stats.isDirectory()) {
-      // フォルダなら、さらにその中を探索（再帰）
       walkAndGenerate(fullPath);
     } else if (/\.(jpg|jpeg|png|webp|JPG|JPEG|PNG|WEBP)$/i.test(file)) {
-      // 画像ファイルなら、JSONがあるか確認して生成
       const fileInfo = path.parse(fullPath);
       const jsonPath = path.join(fileInfo.dir, `${fileInfo.name}.json`);
 
+      // JSONがまだ存在しない場合のみ新規作成
       if (!fs.existsSync(jsonPath)) {
         const template = {
           id: fileInfo.name,
           title: fileInfo.name,
-          date: "2026.01.26",
-          memo: "ここに説明文を書いてください。",
-          tags: ["New"]
+          charName: "None", // キャラクター名
+          date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
+          memo: "No description provided.",
+          software: "None", // 使用ソフト
+          tags: []
         };
 
         fs.writeFileSync(jsonPath, JSON.stringify(template, null, 2), 'utf8');
-        console.log(`✅ 作成: ${path.relative(rootWorksDir, jsonPath)}`);
+        console.log(`✅ JSONを生成しました: ${fileInfo.name}.json`);
       }
     }
   });
 }
 
+console.log("🚀 JSON生成プロセスを開始します...");
 walkAndGenerate(rootWorksDir);
-console.log('--- すべての探索が終了しました ---');
+console.log("✨ すべての処理が完了しました。");

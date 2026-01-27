@@ -27,6 +27,10 @@ const allWorks = images.map(img => {
 // 全タグ抽出
 const allTags = [...new Set(allWorks.flatMap(work => work.tags))];
 
+// URLから ?tag= の値を取得する
+const { searchParams } = Astro.url;
+const initialTag = searchParams.get('tag');
+
 const props = { title: 'Gallery', description: '作品集', pubDate: new Date() };
 ---
 
@@ -41,7 +45,7 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
         .title, .date, hr { display: none !important; }
     </style>
 
-    <div class="gallery-page-container">
+    <div class="gallery-page-container" id="gallery-root" data-initial-tag={initialTag}>
         <div class="filter-container">
             <button class="filter-btn active" data-tag="all">All</button>
             {allTags.map(tag => (
@@ -60,36 +64,67 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
         </div>
     </div>
 
-    <script>
-        const buttons = document.querySelectorAll('.filter-btn');
-        const items = document.querySelectorAll('.work-item');
+        <script>
+        // フィルタリング処理のメイン関数
+        function initGallery() {
+            const buttons = document.querySelectorAll('.filter-btn');
+            const items = document.querySelectorAll('.work-item');
+            const root = document.getElementById('gallery-root');
+            
+            // URLから直接パラメータを取得する
+            const params = new URLSearchParams(window.location.search);
+            const initialTag = params.get('tag');
 
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const targetTag = btn.getAttribute('data-tag');
+            function filterByTag(targetTag) {
+                if (!targetTag) return;
 
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+                buttons.forEach(b => {
+                    if (b.getAttribute('data-tag') === targetTag) {
+                        b.classList.add('active');
+                    } else {
+                        b.classList.remove('active');
+                    }
+                });
 
                 items.forEach(item => {
-                    const itemTags = JSON.parse(item.getAttribute('data-tags'));
+                    const attr = item.getAttribute('data-tags');
+                    const itemTags = JSON.parse(attr || '[]');
                     if (targetTag === 'all' || itemTags.includes(targetTag)) {
                         (item as HTMLElement).style.display = 'block';
                     } else {
                         (item as HTMLElement).style.display = 'none';
                     }
                 });
+            }
+
+            // ボタンクリックイベント
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tag = btn.getAttribute('data-tag');
+                    // URLを書き換えない（戻るボタン対策）場合は単純にフィルタリング
+                    filterByTag(tag);
+                });
             });
-        });
+
+            // 初期実行
+            if (initialTag) {
+                filterByTag(initialTag);
+            }
+        }
+
+        // 通常の読み込み時
+        window.addEventListener('DOMContentLoaded', initGallery);
+
+        // AstroのView Transitions（もし使っていれば）対策
+        document.addEventListener('astro:page-load', initGallery);
+        
+        // 念のため即時実行も試みる
+        initGallery();
     </script>
 </Layout>
 
-
-
-
 <style>
-    
-.filter-container { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter-container { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
     .filter-btn {
         padding: 5px 15px; border: 1px solid #ddd; background: white; border-radius: 20px;
         cursor: pointer; transition: 0.3s; font-size: 0.9rem;
@@ -98,29 +133,25 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
     
     .full-gallery {
         display: grid;
-        /* 1枚あたりを少し小さくして「敷き詰め感」をアップ */
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 10px; /* ギチギチにするなら0 */
+        gap: 10px;
         padding: 0;
         width: 100%;
     }
 
     .full-gallery img {
         width: 100%;
+        /* aspect-ratio: 1 / 1;  正方形にする場合。不要なら削除してください */
         object-fit: cover;
         object-position: center 20%;
         display: block;
         transition: transform 0.3s ease, filter 0.3s ease;
     }
 
-    /* スマホ版：2列でギチギチにする */
     @media (max-width: 720px) {
-        .full-gallery {
-            grid-template-columns: repeat(2, 1fr);
-        }
+        .full-gallery { grid-template-columns: repeat(2, 1fr); }
     }
 
-    /* ホバー演出 */
     .hover-popup:hover img {
         transform: scale(1.1);
         filter: brightness(0.7);
@@ -128,8 +159,7 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
         position: relative;
     }
     .hover-popup {
-        overflow: visible; /* 拡大した時に切れないように */
+        overflow: hidden; /* 拡大した時に枠からはみ出さないように */
+        display: block;
     }
 </style>
-
-

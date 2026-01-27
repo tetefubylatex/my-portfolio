@@ -1,41 +1,44 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Infobox from '../components/Infobox.astro';
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
 import '../../styles/global.css'; 
 
 export async function getStaticPaths() {
   const images = await Astro.glob('../../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
   const infoFiles = await Astro.glob('../../assets/works/**/*.json');
 
-  return images.map((img) => {
+  const allWorks = images.map((img) => {
     const imagePath = img.file || img.default.src;
     const filename = imagePath.split('/').pop().split('?')[0];
     const slug = filename.split('.')[0];
     const infoFile = infoFiles.find((f) => (f.default?.id === slug));
+    const content = infoFile?.default || {};
+    
+    return {
+      slug,
+      src: img.default.src,
+      title: content.title || slug,
+      charName: content.charName || "---",
+      date: content.date || "2026.01.26",
+      memo: content.memo || "説明文がありません。",
+      software: content.software || "---",
+      tags: content.tags || []
+    };
+  });
 
-    let data = { title: slug, date: "2026.01.26", memo: "説明文がまだありません。", tags: [] };
-    if (infoFile) {
-      const content = infoFile.default || infoFile;
-      data = {
-        title: content.title || slug,
-        date: content.date || "2026.01.26",
-        memo: content.memo || "説明文がありません。",
-        tags: content.tags || []
-      };
-    }
-    return { params: { slug }, props: { img, info: data } };
+  return allWorks.map((work, index) => {
+    const relatedWorks = allWorks
+      .filter(w => w.slug !== work.slug && w.tags.some(tag => work.tags.includes(tag)))
+      .slice(0, 4);
+
+    return {
+      params: { slug: work.slug },
+      props: { info: work, prevSlug: index > 0 ? allWorks[index - 1].slug : null, nextSlug: index < allWorks.length - 1 ? allWorks[index + 1].slug : null, relatedWorks }
+    };
   });
 }
 
-const { img, info } = Astro.props;
-
-import Header from '../../components/Header.astro';
-import Footer from '../../components/Footer.astro';
-// 全体共通のCSS（もしグローバルなCSSファイルがあればインポート）
-// import '../styles/global.css'; 
+const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -44,100 +47,236 @@ import Footer from '../../components/Footer.astro';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{info.title}</title>
-    
-    <style is:global>
-        /* サイト全体のフォントや基本設定を復元 */
-        :root {
-            --accent: #2337ff;
-        }
-        html {
-            font-family: system-ui, sans-serif;
-            background-color: #F6F6F6;
-        }
-        body {
-            margin: 0;
-            padding: 0;
-        }
-        /* 画像がはみ出さないように設定 */
-        img {
-            max-width: 100%;
-            height: auto;
-        }
-    </style>
 </head>
 <body>
     <Header />
 
-    <main class="work-container">
-        <nav class="back-nav">
-            <a href="/gallery">← Back to Gallery</a>
-        </nav>
-
-        <article class="work-card">
-            <div class="image-area">
-                <img src={img.default.src} alt={info.title} />
-            </div>
-
-            <div class="info-area">
-                <h1>{info.title}</h1>
-                <div class="meta"><span>Added: {info.date}</span></div>
-                <div class="tags">
-                    {info.tags.map(tag => <span class="tag">#{tag}</span>)}
+    <main class="work-page-container">
+        <div class="split-layout">
+            
+            <aside class="artwork-column">
+                <nav class="top-nav">
+                    <a href="/gallery" class="back-link">← Back to Gallery</a>
+                </nav>
+                <div class="sticky-image-container">
+                    <img src={info.src} alt={info.title} class="main-artwork" />
                 </div>
-                <hr />
-                <div class="memo-section">
+            </aside>
+
+            <section class="info-column">
+                <h1 class="work-title">{info.title}</h1>
+                
+                <div class="detail-block">
                     <h3>Memo</h3>
-                    <p>{info.memo}</p>
+                    <p class="memo-text">{info.memo}</p>
                 </div>
-            </div>
-        </article>
+
+                <div class="detail-block">
+                    <h3>Character</h3>
+                    <p>{info.charName}</p>
+                </div>
+
+                <div class="detail-block">
+                        <h3>Tags</h3>
+                        <div class="tags">
+                            {info.tags.map(tag => (
+                                <a href={`/gallery?tag=${tag}`} class="tag-link">
+                                    <span class="tag">#{tag}</span>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+
+                <div class="detail-block">
+                    <h3>Release Date</h3>
+                    <p>{info.date}</p>
+                </div>
+
+                <div class="detail-block">
+                    <h3>Software</h3>
+                    <p>{info.software}</p>
+                </div>
+
+                {relatedWorks.length > 0 && (
+                    <div class="related-mini-section">
+                        <h3>Related Works</h3>
+                        <div class="related-mini-grid">
+                            {relatedWorks.map(related => (
+                                <a href={`/works/${related.slug}`} class="related-mini-item">
+                                    <img src={related.src} alt={related.title} />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <div class="pagination">
+                    {prevSlug ? <a href={`/works/${prevSlug}`} class="page-btn">← prev</a> : <span class="disabled">← prev</span>}
+                    {nextSlug ? <a href={`/works/${nextSlug}`} class="page-btn">next →</a> : <span class="disabled">next →</span>}
+                </div>
+            </section>
+        </div>
     </main>
 
     <Footer />
 </body>
 </html>
 
+<style is:global>
+    /* 親要素の「固定を邪魔する設定」をすべて上書きして解除します */
+    html, body {
+        overflow: visible !important;
+        height: auto !important;
+    }
+    
+    /* もしLayoutコンポーネントを使っている場合、その中身の制限も解除 */
+    main, #__astro, .container {
+        overflow: visible !important;
+        display: block !important;
+    }
+</style>
+
 <style>
-    /* ページの個別スタイル（1080px制限） */
-    .work-container {
-        max-width: 1080px;
+    .work-page-container {
+        max-width: 1200px;
         margin: 0 auto;
         padding: 40px 20px;
-        box-sizing: border-box;
     }
-    .back-nav { margin-bottom: 20px; }
-    .back-nav a { text-decoration: none; color: #888; font-weight: bold; }
 
-    .work-card {
-        background: white;
-        border: 1px solid #eee;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    .split-layout {
+        display: flex;
+        gap: 60px;
+        align-items: flex-start; /* これが必須：子要素の高さを揃えない */
     }
-    .image-area img {
+
+    /* 左側：固定エリア */
+    .artwork-column {
+        flex: 1;
+        position: -webkit-sticky; /* Safari対応 */
+        position: sticky;
+        top: 20px; /* 画面の一番上から20pxの位置で止まる */
+        z-index: 10;
+    }
+
+    .main-artwork {
         width: 100%;
+        height: auto;
         display: block;
+        border-radius: 4px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
     }
-    .info-area { padding: 40px; }
-    h1 { margin: 0; font-size: 2.2rem; line-height: 1.2; }
-    .meta { color: #999; margin: 10px 0; font-size: 0.9rem; }
-    .tags { margin: 20px 0; }
+
+    /* 右側：情報エリア */
+    .info-column {
+        width: 300px;
+        flex-shrink: 0;
+    }
+
+    /* 以下、前回のデザイン用スタイルを継続... */
+/* Back to Gallery のフォント修正 */
+    .back-link {
+        text-decoration: none;
+        color: #888 !important;
+        font-size: 0.9rem; /* 少し大きく */
+        font-weight: 700;   /* 太さをしっかり出す */
+        letter-spacing: 0.05em; /* 少し字間を広げて洗練された印象に */
+        transition: color 0.2s;
+    }
+
+    .back-link:hover {
+        color: #111 !important;
+    }
+
+    /* タグのリンク設定 */
+    .tag-link {
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 8px;
+        transition: transform 0.1s;
+    }
+
+    .tag-link:hover {
+        transform: translateY(-1px); /* 少しだけ浮かせる */
+    }
+
+    .tag {
+        font-size: 0.8rem;
+        color: #666;
+        font-weight: 600; /* タグも少し太めに */
+    }
+
+    .tag-link:hover .tag {
+        color: #111; /* ホバー時に少し濃く */
+    }  
+
+
+    .work-title {
+        font-size: 1.6rem;
+        margin-bottom: 40px;
+        font-weight: 700;
+        color: #111;
+        line-height: 1.2;
+    }
+
+    .detail-block { margin-bottom: 30px; }
+    .detail-block h3, .related-mini-section h3 {
+        font-size: 0.7rem;
+        color: #ccc;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        margin-bottom: 10px;
+    }
+    .detail-block p { font-size: 0.95rem; color: #444; margin: 0; }
+    .memo-text { white-space: pre-wrap; line-height: 1.8; }
+
     .tag {
         display: inline-block;
-        background: #f0f0f0;
-        padding: 4px 14px;
-        border-radius: 20px;
         font-size: 0.8rem;
-        margin-right: 8px;
-        color: #666;
+        color: #888;
+        margin-right: 10px;
     }
-    hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
-    .memo-section h3 { font-size: 1.1rem; color: #333; margin-bottom: 10px; }
-    .memo-section p { white-space: pre-wrap; line-height: 1.8; color: #444; }
 
-    @media (max-width: 720px) {
-        .info-area { padding: 20px; }
-        h1 { font-size: 1.5rem; }
+    /* 関連作品：Software直下・ミニサイズ */
+    .related-mini-section {
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 1px solid #eee;
+    }
+    .related-mini-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .related-mini-item img {
+        width: 100%;
+        aspect-ratio: 1/1;
+        object-fit: cover;
+        border-radius: 3px;
+        transition: 0.3s;
+    }
+    .related-mini-item:hover img {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+
+    /* ページネーション */
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 50px;
+        font-size: 0.85rem;
+        border-top: 1px solid #eee;
+        padding-top: 25px;
+    }
+    .page-btn { text-decoration: none; color: #111; font-weight: bold; border-bottom: 1px solid transparent; }
+    .page-btn:hover { border-bottom-color: #111; }
+    .disabled { color: #eee; }
+
+    /* モバイル対応：縦並びに */
+    @media (max-width: 900px) {
+        .split-layout { flex-direction: column; gap: 40px; }
+        .artwork-column { position: static; width: 100%; }
+        .info-column { width: 100%; padding-top: 0; }
+        .related-mini-grid { grid-template-columns: repeat(4, 1fr); }
     }
 </style>
