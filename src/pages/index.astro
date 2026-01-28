@@ -35,7 +35,6 @@ const recentWorks = allWorks
   mostLikeAnimal='ニホンカモシカ🐐'
   likeColors='#B53827'
   likePlant='Black Lotus'
-  birth='8月16日'
   likeFood='そば 汁無し麺 ホタテ 日本酒🍶 辛いもの🔥'
   kiraiFood='納豆 コーヒー 果物全般'
   workspace='iPad Pro 12.9(6th gen)とApple pencil'
@@ -78,7 +77,8 @@ const recentWorks = allWorks
 
 
 
-  <p class="view-more"><a href="/gallery">もっと見る</a></p>
+  <p class="view-more"><a href="/gallery" class="view-more-link">View More</a>
+</p>
 </section>
 
 			<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
@@ -95,6 +95,27 @@ const recentWorks = allWorks
 </p>
 
 			<style>
+        /* View More ボタンのスタイル */
+.view-more-link {
+    display: inline-block;
+    text-decoration: none;
+    color: #111;              /* 濃いグレー/黒 */
+    font-size: 0.8rem;        /* 作品ページとサイズを統一 */
+    font-weight: 700;         /* 以前より太く設定 */
+    letter-spacing: 0.15em;   /* 字間を広げてスタイリッシュに */
+    text-transform: uppercase; /* 大文字に強制（デザイン性が高まります） */
+    padding: 10px 0;
+    border-bottom: 2px solid #111; /* 下線をつけてアクセントに */
+    transition: all 0.3s ease;
+}
+
+/* ホバー時の演出 */
+.view-more-link:hover {
+    color: #888;              /* ホバーで少し薄く */
+    border-bottom-color: #888;
+    transform: translateY(-2px); /* 少しだけ上に浮かせる */
+}
+
   .recent-grid {
     display: grid;
     /* デフォルト（PC）は4列 */

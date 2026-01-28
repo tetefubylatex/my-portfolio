@@ -25,8 +25,8 @@ function walkAndGenerate(dir) {
           charName: "None", // キャラクター名
           date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
           memo: "No description provided.",
-          software: "None", // 使用ソフト
-          tags: []
+          software: "Procreate", // 使用ソフト
+          tags: ["ファンアート"]
         };
 
         fs.writeFileSync(jsonPath, JSON.stringify(template, null, 2), 'utf8');

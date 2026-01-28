@@ -64,66 +64,105 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
         </div>
     </div>
 
-        <script>
-        // フィルタリング処理のメイン関数
-        function initGallery() {
-            const buttons = document.querySelectorAll('.filter-btn');
-            const items = document.querySelectorAll('.work-item');
-            const root = document.getElementById('gallery-root');
+<script>
+    function initGallery() {
+        const buttons = document.querySelectorAll('.filter-btn');
+        const items = document.querySelectorAll('.work-item');
+        
+        // --- 1. 画面内に入った時の処理 ---
+        const observerOptions = {
+            rootMargin: '0px 0px -50px 0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            // 画面内に入った要素だけを抽出
+            const visibleEntries = entries.filter(entry => entry.isIntersecting);
             
-            // URLから直接パラメータを取得する
-            const params = new URLSearchParams(window.location.search);
-            const initialTag = params.get('tag');
+            visibleEntries.forEach((entry, index) => {
+                const target = entry.target as HTMLElement;
+                // 画面内の順番に応じてディレイを計算 (100msずつずらす)
+                setTimeout(() => {
+                    target.classList.add('is-visible');
+                }, index * 100); 
+                
+                observer.unobserve(target);
+            });
+        }, observerOptions);
 
-            function filterByTag(targetTag) {
-                if (!targetTag) return;
+        // --- 2. フィルタリング処理 ---
+        function filterByTag(targetTag) {
+            if (!targetTag) return;
 
-                buttons.forEach(b => {
-                    if (b.getAttribute('data-tag') === targetTag) {
-                        b.classList.add('active');
-                    } else {
-                        b.classList.remove('active');
-                    }
-                });
-
-                items.forEach(item => {
-                    const attr = item.getAttribute('data-tags');
-                    const itemTags = JSON.parse(attr || '[]');
-                    if (targetTag === 'all' || itemTags.includes(targetTag)) {
-                        (item as HTMLElement).style.display = 'block';
-                    } else {
-                        (item as HTMLElement).style.display = 'none';
-                    }
-                });
-            }
-
-            // ボタンクリックイベント
-            buttons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tag = btn.getAttribute('data-tag');
-                    // URLを書き換えない（戻るボタン対策）場合は単純にフィルタリング
-                    filterByTag(tag);
-                });
+            buttons.forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-tag') === targetTag);
             });
 
-            // 初期実行
-            if (initialTag) {
-                filterByTag(initialTag);
-            }
+            // 表示するアイテムのカウント用
+            let visibleCount = 0;
+
+            items.forEach((item) => {
+                const hItem = item as HTMLElement;
+                const itemTags = JSON.parse(hItem.getAttribute('data-tags') || '[]');
+                
+                if (targetTag === 'all' || itemTags.includes(targetTag)) {
+                    hItem.style.display = 'block';
+                    hItem.classList.remove('is-visible'); // 一旦リセット
+                    
+                    // 表示されるものだけ順番にディレイをかけて再表示
+                    setTimeout(() => {
+                        hItem.classList.add('is-visible');
+                    }, visibleCount * 100); // 0.1秒ずつずらす
+                    
+                    visibleCount++;
+                } else {
+                    hItem.style.display = 'none';
+                    hItem.classList.remove('is-visible');
+                }
+            });
         }
 
-        // 通常の読み込み時
-        window.addEventListener('DOMContentLoaded', initGallery);
+        // 監視開始
+        items.forEach(item => observer.observe(item));
 
-        // AstroのView Transitions（もし使っていれば）対策
-        document.addEventListener('astro:page-load', initGallery);
-        
-        // 念のため即時実行も試みる
-        initGallery();
-    </script>
+        // ボタンイベント
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tag = btn.getAttribute('data-tag');
+                filterByTag(tag);
+            });
+        });
+
+        // 初期実行
+        const params = new URLSearchParams(window.location.search);
+        const initialTag = params.get('tag');
+        if (initialTag) {
+            filterByTag(initialTag);
+        }
+    }
+
+    document.addEventListener('astro:page-load', initGallery);
+    initGallery();
+</script>
+
+
+
 </Layout>
 
 <style>
+        /* 初期状態：透明で少し下に下げておく */
+    .work-item {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    /* 画面に入った時に付与するクラス */
+    .work-item.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     .filter-container { margin-bottom: 30px; display: flex; gap: 10px; flex-wrap: wrap; }
     .filter-btn {
         padding: 5px 15px; border: 1px solid #ddd; background: white; border-radius: 20px;
@@ -131,35 +170,56 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
     }
     .filter-btn.active { background: #333; color: white; border-color: #333; }
     
-    .full-gallery {
+        .full-gallery {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         gap: 10px;
-        padding: 0;
         width: 100%;
+        /* 拡大した画像がページ全体からはみ出さないように設定 */
+        overflow: visible; 
+    }
+
+    /* 各作品のコンテナ */
+    .work-item {
+        position: relative;
+        /* ここで overflow: hidden を使うと枠を超えられないので visible にします */
+        overflow: visible; 
+    }
+
+    .hover-popup {
+        display: block;
+        width: 100%;
+        text-decoration: none;
     }
 
     .full-gallery img {
         width: 100%;
-        /* aspect-ratio: 1 / 1;  正方形にする場合。不要なら削除してください */
         object-fit: cover;
         object-position: center 20%;
         display: block;
-        transition: transform 0.3s ease, filter 0.3s ease;
+        border-radius: 2px;
+        /* アニメーションの設定 */
+        transition: transform 0.3s ease, filter 0.3s ease, box-shadow 0.3s ease;
     }
 
-    @media (max-width: 720px) {
-        .full-gallery { grid-template-columns: repeat(2, 1fr); }
-    }
-
+    /* 【重要】カーソルを合わせた時の演出 */
     .hover-popup:hover img {
-        transform: scale(1.1);
-        filter: brightness(0.7);
-        z-index: 10;
-        position: relative;
+        transform: scale(1.1); /* 1.1倍に拡大 */
+        filter: brightness(0.8); /* 少し暗くする */
+        z-index: 50; /* 他の画像より上に表示 */
+        position: relative; /* z-indexを有効にするため */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3); /* 浮かび上がって見える影 */
     }
-    .hover-popup {
-        overflow: hidden; /* 拡大した時に枠からはみ出さないように */
-        display: block;
+
+    /* 前後の重なり順を制御 */
+    .work-item:hover {
+        z-index: 100;
+    }
+
+    /* スマホ対応：2列 */
+    @media (max-width: 720px) {
+        .full-gallery {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 </style>

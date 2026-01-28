@@ -50,6 +50,7 @@ import HeaderLink from './HeaderLink.astro';
 		padding: 0 1em;
 		background: white;
 		box-shadow: 0 2px 8px rgba(var(--black), 5%);
+		flex-wrap: nowrap;  /* 絶対に折り返さない */
 	}
 	h2 {
 		margin: 0;
@@ -84,4 +85,31 @@ import HeaderLink from './HeaderLink.astro';
 			display: none;
 		}
 	}
+	  @media (max-width: 720px) {
+        header {
+            padding: 15px 20px; /* 全体の余白をギュッと詰める */
+        }
+
+        .logo {
+            font-size: 1.2rem; /* ロゴを少し小さく */
+        }
+
+        nav {
+            gap: 12px; /* メニュー同士の間隔を狭くする */
+        }
+
+        nav a {
+            font-size: 0.85rem; /* メニューの文字を少し小さく */
+        }
+    }
+
+    /* さらに画面が小さい（iPhone SEなど）場合 */
+    @media (max-width: 380px) {
+        .logo {
+            font-size: 1.1rem;
+        }
+        nav {
+            gap: 8px;
+        }
+    }
 </style>
