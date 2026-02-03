@@ -6,13 +6,39 @@ import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-// 既存のインポートの下に追加
-const allWorks = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
 
-// 新しい順に並べ替えて、最初の4つだけを取り出す
-const recentWorks = allWorks
-  .reverse() // 後のファイル（新しいもの）を前に持ってくる
-  .slice(0, 4); // 0番目から4個分を切り出す
+// 1. JSONファイルをすべて取得
+const allJson = await Astro.glob('../assets/works/**/*.json');
+
+// 2. 画像ファイルをすべて取得（これで画像の実体をつかみます）
+const allImages = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
+
+// 3. JSONを日付順に並び替え
+const sortedJson = allJson
+  .sort((a, b) => {
+    const dateA = new Date(a.date.replaceAll('.', '-')).getTime();
+    const dateB = new Date(b.date.replaceAll('.', '-')).getTime();
+    return dateB - dateA;
+  })
+  .slice(0, 4);
+
+// 4. JSONに対応する画像を紐付ける
+const recentWorks = sortedJson.map((json) => {
+  const slug = json.id; // 例: "IMG_1511"
+
+  // allImagesの中から、ファイル名がこのslugと一致する画像を探す
+  const imageFile = allImages.find((img) => {
+    // パスの中からファイル名（IMG_1511）だけを抜き出して比較
+    const filename = img.default.src.split('/').pop().split('.')[0];
+    return filename.includes(slug);
+  });
+
+  return {
+    slug: slug,
+    // 見つかった画像の実体パスを入れる（見つからなければ空）
+    src: imageFile ? imageFile.default.src : ''
+  };
+});
 ---
 
 <!doctype html>
@@ -23,139 +49,137 @@ const recentWorks = allWorks
 	<body>
 		<Header />
 		<main>
-            <Infobox 
-<Infobox 
-  name="テテフでLaTeX" 
-  nameEn="LaTeX"
-  image="/images/backgrounds/IMG_2402.jpeg"
-  imageCaption='カプ・テテフがLaTeXを編集している様子'
-  twitter='_TeLaX'
-  latexnoyomi='ラテックス、ラテフ、ラテック、ラーテック、レイテフ、レイテック、レイテックス'
-  likeAnimals='ウシ科🐃 海獣🦭 鳥類全般🦆'
-  mostLikeAnimal='ニホンカモシカ🐐'
-  likeColors='#B53827'
-  likePlant='Black Lotus'
-  likeFood='そば 汁無し麺 ホタテ 日本酒🍶 辛いもの🔥'
-  kiraiFood='納豆 コーヒー 果物全般'
-  workspace='iPad Pro 12.9(6th gen)とApple pencil'
-  oekakiapp='Procreate'
-></Infobox>
+      <Infobox 
+        name="テテフでLaTeX" 
+        nameEn="LaTeX"
+        image="/images/backgrounds/IMG_2402.jpeg"
+        imageCaption='カプ・テテフがLaTeXを編集している様子'
+        twitter='_TeLaX'
+        latexnoyomi='ラテックス、ラテフ、ラテック、ラーテック、レイテフ、レイテック、レイテックス'
+        likeAnimals='ウシ科🐃 海獣🦭 鳥類全般🦆'
+        mostLikeAnimal='ニホンカモシカ🐐'
+        likeColors='#B53827'
+        likePlant='Black Lotus'
+        likeFood='そば 汁無し麺 ホタテ 日本酒🍶 辛いもの🔥'
+        kiraiFood='納豆 コーヒー 果物全般'
+        workspace='iPad Pro 12.9(6th gen)とApple pencil'
+        oekakiapp='Procreate'
+      />
+
 			<h2>LaTeX-Gallery</h2>
-      	<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;"></section>
-			<p></br>
-			自称furry絵描きのLaTeXです。</br>
-			ウシ科動物の魅力を広めるべく活動しています。</br>
-			ウシ科以外の動物も大体好きです。</br>
-			最近はポケモンも好きです。（節操がない）</br>
-			</p>
-      <figure class="main-image">
-  <img src="/images/backgrounds/IMG_2416.jpeg" alt="サザンカ">
-  <figcaption>ジャージー種のサザンカ</figcaption>
-</figure>
+      <section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;"></section>
 			
+      <p>
+        <br/>
+			  自称furry絵描きのLaTeXです。<br/>
+			  ウシ科動物の魅力を広めるべく活動しています。<br/>
+			  ウシ科以外の動物も大体好きです。<br/>
+			  最近はポケモンも好きです。（節操がない）<br/>
+			</p>
 
+      <figure class="main-image">
+        <img src="/images/backgrounds/IMG_2416.jpeg" alt="サザンカ">
+        <figcaption>ジャージー種のサザンカ</figcaption>
+      </figure>
+			
 			<p>
-				作った作品や好きなコンテンツを語ったり、色んな活動している人ともっと交流してみたいと思ってこのサイトを作りました。</br>
-				更新予定のコンテンツとして、描いたイラストの制作メモ的な話や、好きなモノの自分語り記事などを予定しています。</br>
-				</p>
-				<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
-  <section class="recent-works-section">
-  <h3>Recent Works</h3>
-  <div class="recent-grid">
-    {recentWorks.map((img) => {
-        // ここでも同様にslugを計算します
-        const filename = img.default.src.split('/').pop().split('?')[0];
-        const slug = filename.split('.')[0];
+				作った作品や好きなコンテンツを語ったり、色んな活動している人ともっと交流してみたいと思ってこのサイトを作りました。<br/>
+				更新予定のコンテンツとして、描いたイラストの制作メモ的な話や、好きなモノの自分語り記事などを予定しています。<br/>
+			</p>
 
-        return (
-            <a href={`/works/${slug}`} class="hover-popup">
-                <img src={img.default.src} alt="最新作" />
-            </a>
-        );
-    })}
+      <section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
+        <section class="recent-works-section">
+          <h3>Recent Works</h3>
+          <div class="recent-grid">
+  {recentWorks.map((work) => (
+    <a href={`/works/${work.slug}`} class="hover-popup">
+      {work.src && <img src={work.src} alt="最新作" />}
+    </a>
+  ))}
 </div>
 
 
-
-  <p class="view-more"><a href="/gallery" class="view-more-link">View More</a>
-</p>
-</section>
+          <p class="view-more">
+            <a href="/gallery" class="view-more-link">View More</a>
+          </p>
+        </section>
+      </section>
 
 			<section style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
-  <h3>Free Drawing Space 🎨</h3>
-  <p>なかよく使おうね！！</p>
-  
-  <iframe 
-    src="https://wbo.ophir.dev/boards/latexVStetefu" 
-    style="width: 100%; height: 500px; border: 2px solid #eee; border-radius: 8px;"
-    title="Drawing Board">
-  </iframe>
-  <p style="text-align: center; text-transform: lowercase; font-size: 0.75rem; color: #666;">
-  リアルタイムで共有されます！
-</p>
-
-			<style>
-        /* View More ボタンのスタイル */
-.view-more-link {
-    display: inline-block;
-    text-decoration: none;
-    color: #111;              /* 濃いグレー/黒 */
-    font-size: 0.8rem;        /* 作品ページとサイズを統一 */
-    font-weight: 700;         /* 以前より太く設定 */
-    letter-spacing: 0.15em;   /* 字間を広げてスタイリッシュに */
-    text-transform: uppercase; /* 大文字に強制（デザイン性が高まります） */
-    padding: 10px 0;
-    border-bottom: 2px solid #111; /* 下線をつけてアクセントに */
-    transition: all 0.3s ease;
-}
-
-/* ホバー時の演出 */
-.view-more-link:hover {
-    color: #888;              /* ホバーで少し薄く */
-    border-bottom-color: #888;
-    transform: translateY(-2px); /* 少しだけ上に浮かせる */
-}
-
-  .recent-grid {
-    display: grid;
-    /* デフォルト（PC）は4列 */
-    grid-template-columns: repeat(4, 1fr);
-    gap: 15px;
-    margin: 20px 0;
-  }
-main {
-    /* メインコンテンツの幅を広げる（元はもっと狭いはずです） */
-    width: 100%;
-    max-width: 1080px; 
-    margin: 0 auto;
-    padding: 2em;
-  }
-  /* スマホ版（画面幅が720px以下のとき）の調整 */
-  @media (max-width: 720px) {
-    .recent-grid {
-      /* ここを 2列 に変更！ */
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px; /* スマホでは間隔を少し狭くすると見栄えが良いです */
-    }
-  }
-
-  .recent-grid img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    object-position: center 20%; /* 「顔が見切れない」設定を維持 */
-    border: 1px solid #eee;
-  }
-
-  /* Infoboxが右に浮いている時、本文が回り込むように調整 */
-  @media (min-width: 720px) {
-    .infobox {
-      margin-left: 2rem;
-    }
-  }
-</style>
-
+        <h3>Free Drawing Space 🎨</h3>
+        <p>なかよく使おうね！！</p>
+        
+        <iframe 
+          src="https://wbo.ophir.dev/boards/latexVStetefu" 
+          style="width: 100%; height: 500px; border: 2px solid #eee; border-radius: 8px;"
+          title="Drawing Board">
+        </iframe>
+        <p style="text-align: center; text-transform: lowercase; font-size: 0.75rem; color: #666;">
+          リアルタイムで共有されます！
+        </p>
+      </section>
 		</main>
-		<Footer />
+
+    <Footer />
+
+    <style>
+      .view-more-link {
+          display: inline-block;
+          text-decoration: none;
+          color: #111;
+          font-size: 0.8rem;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          padding: 10px 0;
+          border-bottom: 2px solid #111;
+          transition: all 0.3s ease;
+      }
+
+      .view-more-link:hover {
+          color: #888;
+          border-bottom-color: #888;
+          transform: translateY(-2px);
+      }
+
+      .recent-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+      }
+
+      main {
+          width: 100%;
+          max-width: 1080px; 
+          margin: 0 auto;
+          padding: 2em 20px; 
+          box-sizing: border-box;
+          overflow: hidden; /* 子要素のはみ出しを確実にカット */
+      }
+
+      @media (max-width: 720px) {
+        .recent-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+      }
+
+      .recent-grid img {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        object-position: center 20%;
+        border: 1px solid #eee;
+      }
+
+      @media (min-width: 720px) {
+        /* コンポーネント内のクラスに確実に当てるため global または .infobox を確認 */
+        .infobox {
+          margin-left: 2rem;
+          float: right;
+        }
+      }
+    </style>
 	</body>
 </html>

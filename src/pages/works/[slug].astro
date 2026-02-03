@@ -130,6 +130,10 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
     main, #__astro, .container {
         display: block !important;
     }
+    /* 作品ページに限り、stickyを邪魔するhiddenをすべて無効化する */
+    html, body, main, .work-page-container, .split-layout {
+        overflow: visible !important;
+    }
 </style>
 
 <style>
@@ -156,26 +160,36 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
         display: flex;
         justify-content: center;
     }
-
-       .artwork-column {
+    /* 左側：カラム全体 */
+    .artwork-column {
         flex: 1;
         position: sticky;
-        top: 40px; 
+        top: 40px; /* 画面上部からの固定位置 */
         z-index: 10;
-        /* 高さを明示的に持たせない（画像に任せる） */
-        height: min-content; 
-        align-self: flex-start;
+        
+        /* 【重要】高さを固定せず、中身（画像）の高さに合わせる */
+        height: fit-content; 
+        /* 【重要】これを入れることで、stickyが正しく機能します */
+        align-self: flex-start; 
+    }
+
+    .sticky-image-container {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        /* ここに余計な height 指定がないことを確認してください */
     }
 
     .main-artwork {
         display: block;
-        /* 初期の制限だけかけておき、あとはJSで固定します */
+        /* 最初は画面に収まるように制限をかけておく */
         max-width: 100%;
         max-height: calc(100vh - 120px);
         object-fit: contain;
         border-radius: 2px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.08);
     }
+
 
 
     /* 右側：情報カラム */
@@ -246,6 +260,7 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
     .related-mini-item img {
         width: 100%;
         aspect-ratio: 1/1;
+        object-position: center 20%; 
         object-fit: cover;
         border-radius: 3px;
         transition: 0.3s;
@@ -279,14 +294,17 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
         const img = document.querySelector('.main-artwork') as HTMLImageElement;
         if (!img) return;
 
-        // 画像が読み込まれるのを待ってからサイズを固定
         const applyFix = () => {
+            // 現在の「画面に美しく収まっているサイズ」を計測
             const rect = img.getBoundingClientRect();
-            // 取得した現在のサイズを、style属性として直接書き込む
+            
+            // 画像のサイズだけをpxで物理固定（これで呼吸/リサイズを防ぐ）
             img.style.width = `${rect.width}px`;
             img.style.height = `${rect.height}px`;
-            img.style.maxWidth = 'none';
-            img.style.maxHeight = 'none';
+            
+            // 追従を邪魔しないよう、max-heightの制約を維持する
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = 'calc(100vh - 120px)';
         };
 
         if (img.complete) {
@@ -296,7 +314,7 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
         }
     }
 
-    // ページ読み込み時と、Astroの遷移時に実行
+    // 読み込み時とAstroの遷移時に実行
     window.addEventListener('load', fixImageSize);
     document.addEventListener('astro:page-load', fixImageSize);
 </script>
