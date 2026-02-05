@@ -91,6 +91,9 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
                     <h3>Release Date</h3>
                     <p>{info.date}</p>
                 </div>
+                <div class="detail-block">
+    <h3>Artist</h3>
+    <p>{info.author || "テテフでLaTeX"}</p> </div>
 
                 <div class="detail-block">
                     <h3>Software</h3>
@@ -137,6 +140,7 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
 </style>
 
 <style>
+    
     .work-page-container {
         max-width: 1200px;
         margin: 0 auto;
@@ -234,6 +238,7 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
         color: #111;
         line-height: 1.2;
     }
+    
 
     .detail-block { margin-bottom: 30px; }
     .detail-block h3, .related-mini-section h3 {

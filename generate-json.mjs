@@ -22,6 +22,7 @@ function walkAndGenerate(dir) {
         const template = {
           id: fileInfo.name,
           title: fileInfo.name,
+          author: "テテフでLaTeX",
           charName: "None", // キャラクター名
           date: new Date().toISOString().split('T')[0].replace(/-/g, '.'),
           memo: "No description provided.",

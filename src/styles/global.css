@@ -333,4 +333,15 @@ main {
   padding: 1em; /* 左右に少し余白を作る */
   box-sizing: border-box;
 }
-
+/* メモを表示する要素のクラスに指定 */
+.memo-text {
+    white-space: pre-wrap;
+}
+/* 作者名専用の微調整が必要なら追加（基本はそのままで綺麗です） */
+.detail-block p {
+    font-size: 0.95rem;
+    color: #444;
+    margin: 0;
+    /* もしフォントの太さを変えたい場合はここ */
+    font-weight: 500; 
+}
