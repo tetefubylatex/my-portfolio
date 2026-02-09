@@ -1,2 +1,8 @@
 {
+	"[json]": {
+		"editor.quickSuggestions": false,
+		"editor.autoClosingBrackets": "off",
+		"editor.autoClosingQuotes": "off"
+	},
+	"editor.suggest.filterGraceful": false
 }

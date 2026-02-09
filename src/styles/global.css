@@ -345,3 +345,26 @@ main {
     /* もしフォントの太さを変えたい場合はここ */
     font-weight: 500; 
 }
+
+/* ============================================================ */
+/* ギャラリー作品ページ - スマートフォン表示時の画像サイズ固定 */
+/* ============================================================ */
+
+/* スマートフォン表示時（最大幅768px）に画像サイズを固定 */
+@media (max-width: 768px) {
+    .sticky-image-container {
+        width: 100%;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .main-artwork {
+        width: 100%;
+        height: auto;
+        max-width: 100%;
+        aspect-ratio: auto;
+        object-fit: contain;
+    }
+}
