@@ -1,28 +1,18 @@
 ---
 import Layout from '../layouts/BlogPost.astro';
+import { getCollection } from 'astro:content';
 
-let images = [];
-let infoFiles = [];
-try {
-  images = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
-  infoFiles = await Astro.glob('../assets/works/**/*.json');
-} catch (e) {
-  console.log("読み込みエラー");
-}
+// Content Collectionsから works を取得
+const allWorksCollections = await getCollection('works');
 
-// 画像とJSONを紐付けたデータリストを作成
-const allWorks = images.map(img => {
-  const imagePath = img.file || img.default.src;
-  const filename = imagePath.split('/').pop().split('?')[0];
-  const slug = filename.split('.')[0];
-  const info = infoFiles.find(f => (f.default?.id === slug));
-  
-  return {
-    slug,
-    src: img.default.src,
-    tags: info?.default?.tags || []
-  };
-});
+// 作品データを整形＆日付順にソート（新しい順）
+const allWorks = allWorksCollections
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .map(work => ({
+    slug: work.data.slug,
+    src: `/images/works/${work.data.image}`,
+    tags: work.data.tags || []
+  }));
 
 // 全タグ抽出
 const allTags = [...new Set(allWorks.flatMap(work => work.tags))];
@@ -36,10 +26,17 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
 
 <Layout {...props}>
     <style is:global>
-        main, .container, article, .content, .prose {
-            max-width: 1080px !important; 
-            margin: 0 auto !important; 
-            width: 100% !important; 
+        main {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        .prose {
+            max-width: 1080px !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            padding: 0 !important;
         }
         /* Blogレイアウト特有のタイトル等の余白を消す */
         .title, .date, hr { display: none !important; }
@@ -150,7 +147,16 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
 </Layout>
 
 <style>
-        /* 初期状態：透明で少し下に下げておく */
+        /* ギャラリーページコンテナのセンター配置 */
+    .gallery-page-container {
+        max-width: 1080px;
+        margin: 0 auto !important;
+        padding: 2em 20px;
+        box-sizing: border-box;
+        width: 100%;
+    }
+
+    /* 初期状態：透明で少し下に下げておく */
     .work-item {
         opacity: 0;
         transform: translateY(20px);
@@ -218,8 +224,18 @@ const props = { title: 'Gallery', description: '作品集', pubDate: new Date() 
 
     /* スマホ対応：2列 */
     @media (max-width: 720px) {
+        .gallery-page-container {
+            padding: 2em 12px !important;
+            margin: 0 auto !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
         .full-gallery {
             grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+    }
         }
     }
 </style>

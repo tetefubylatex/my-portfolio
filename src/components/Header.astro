@@ -62,36 +62,58 @@ import HeaderLink from './HeaderLink.astro';
 	.social-links a {
 		display: flex;
 	}
+	.internal-links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25em;
+		align-items: center;
+	}
 	@media (max-width: 720px) {
 		.social-links {
 			display: none;
 		}
 	}
-	  @media (max-width: 720px) {
-        header {
-            padding: 15px 20px; /* 全体の余白をギュッと詰める */
-        }
+	@media (max-width: 720px) {
+		header {
+			padding: 10px 12px;
+		}
 
-        .logo {
-            font-size: 1.2rem; /* ロゴを少し小さく */
-        }
+		h2 {
+			display: none;
+		}
 
-        nav {
-            gap: 12px; /* メニュー同士の間隔を狭くする */
-        }
+		nav {
+			gap: 0.25em;
+			justify-content: center;
+		}
 
-        nav a {
-            font-size: 0.85rem; /* メニューの文字を少し小さく */
-        }
-    }
+		nav a {
+			padding: 0.5em 0.25em;
+			font-size: 0.75rem;
+			font-weight: 600;
+		}
 
-    /* さらに画面が小さい（iPhone SEなど）場合 */
-    @media (max-width: 380px) {
-        .logo {
-            font-size: 1.1rem;
-        }
-        nav {
-            gap: 8px;
-        }
-    }
+		.internal-links {
+			gap: 0.6em;
+		}
+	}
+
+	@media (max-width: 380px) {
+		header {
+			padding: 8px 10px;
+		}
+
+		h2 {
+			font-size: 0.8em;
+		}
+
+		nav a {
+			padding: 0.4em 0.2em;
+			font-size: 0.7rem;
+		}
+
+		.internal-links {
+			gap: 0.4em;
+		}
+	}
 </style>

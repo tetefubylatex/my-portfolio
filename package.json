@@ -3,9 +3,10 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "node generate-json.mjs && astro dev",
+    "build": "node generate-json.mjs && astro build",
     "preview": "astro preview",
+    "gen": "node generate-json.mjs",
     "astro": "astro"
   },
   "dependencies": {
@@ -14,15 +15,5 @@
     "@astrojs/sitemap": "^3.7.0",
     "astro": "^5.16.15",
     "sharp": "^0.34.3"
-  },
-  "scripts": {
-  "dev": "node generate-json.mjs && astro dev",
-  "gen": "node generate-json.mjs",
-  "start": "astro dev",
-  "build": "node generate-json.mjs && astro build",
-  "preview": "astro preview",
-  "astro": "astro"
-}
-
-
+  }
 }

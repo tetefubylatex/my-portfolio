@@ -1,44 +1,65 @@
 ---
+import { getCollection } from 'astro:content';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import '../../styles/global.css'; 
+import '../../styles/global.css';
 
 export async function getStaticPaths() {
-  const images = await Astro.glob('../../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
-  const infoFiles = await Astro.glob('../../assets/works/**/*.json');
-
-  const allWorks = images.map((img) => {
-    const imagePath = img.file || img.default.src;
-    const filename = imagePath.split('/').pop().split('?')[0];
-    const slug = filename.split('.')[0];
-    const infoFile = infoFiles.find((f) => (f.default?.id === slug));
-    const content = infoFile?.default || {};
+  const works = await getCollection('works');
+  
+  // 日付順に並べてインデックスを作成
+  const sortedWorks = works.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+  
+  return sortedWorks.map((entry, index) => {
+    // 関連作品を取得（同じタグを持つ、自身以外の作品4件）
+    const relatedWorks = sortedWorks
+      .filter(w => w.data.slug !== entry.data.slug && w.data.tags.some(tag => entry.data.tags.includes(tag)))
+      .slice(0, 4)
+      .map(w => ({
+        slug: w.data.slug,
+        title: w.data.title,
+        image: w.data.image
+      }));
+    
+    // prev/next のslug
+    const prevSlug = index > 0 ? sortedWorks[index - 1].data.slug : null;
+    const nextSlug = index < sortedWorks.length - 1 ? sortedWorks[index + 1].data.slug : null;
     
     return {
-      slug,
-      src: img.default.src,
-      title: content.title || slug,
-      charName: content.charName || "---",
-      date: content.date || "2026.01.26",
-      memo: content.memo || "説明文がありません。",
-      software: content.software || "---",
-      tags: content.tags || []
-    };
-  });
-
-  return allWorks.map((work, index) => {
-    const relatedWorks = allWorks
-      .filter(w => w.slug !== work.slug && w.tags.some(tag => work.tags.includes(tag)))
-      .slice(0, 4);
-
-    return {
-      params: { slug: work.slug },
-      props: { info: work, prevSlug: index > 0 ? allWorks[index - 1].slug : null, nextSlug: index < allWorks.length - 1 ? allWorks[index + 1].slug : null, relatedWorks }
+      params: { slug: entry.data.slug },
+      props: { 
+        title: entry.data.title,
+        author: entry.data.author,
+        charName: entry.data.charName,
+        date: entry.data.date,
+        image: entry.data.image,
+        software: entry.data.software,
+        tags: entry.data.tags,
+        body: entry.body,
+        relatedWorks: relatedWorks,
+        prevSlug: prevSlug,
+        nextSlug: nextSlug
+      }
     };
   });
 }
 
-const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
+interface Props {
+  title: string;
+  author?: string;
+  charName?: string;
+  date: Date;
+  image: string;
+  software?: string;
+  tags: string[];
+  body: string;
+  relatedWorks: Array<{slug: string; title: string; image: string}>;
+  prevSlug: string | null;
+  nextSlug: string | null;
+}
+
+const { title, author, charName, date, image, software, tags, body, relatedWorks, prevSlug, nextSlug } = Astro.props;
+const imageUrl = `/images/works/${image}`;
 ---
 
 <!DOCTYPE html>
@@ -46,7 +67,7 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{info.title}</title>
+    <title>{title}</title>
 </head>
 <body>
     <Header />
@@ -59,27 +80,27 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
                     <a href="/gallery" class="back-link">← Back to Gallery</a>
                 </nav>
                 <div class="sticky-image-container">
-                    <img src={info.src} alt={info.title} class="main-artwork" />
+                    <img src={imageUrl} alt={title} class="main-artwork" />
                 </div>
             </aside>
 
             <section class="info-column">
-                <h1 class="work-title">{info.title}</h1>
+                <h1 class="work-title">{title}</h1>
                 
                 <div class="detail-block">
                     <h3>Memo</h3>
-                    <p class="memo-text">{info.memo}</p>
+                    <p class="memo-text" set:html={body}></p>
                 </div>
 
                 <div class="detail-block">
                     <h3>Character</h3>
-                    <p>{info.charName}</p>
+                    <p>{charName || "---"}</p>
                 </div>
 
                 <div class="detail-block">
                     <h3>Tags</h3>
                     <div class="tags">
-                        {info.tags.map(tag => (
+                        {tags.map((tag: string) => (
                             <a href={`/gallery?tag=${tag}`} class="tag-link">
                                 <span class="tag">#{tag}</span>
                             </a>
@@ -89,24 +110,25 @@ const { info, prevSlug, nextSlug, relatedWorks } = Astro.props;
 
                 <div class="detail-block">
                     <h3>Release Date</h3>
-                    <p>{info.date}</p>
+                    <p>{date.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '.')}</p>
                 </div>
                 <div class="detail-block">
-    <h3>Artist</h3>
-    <p>{info.author || "テテフでLaTeX"}</p> </div>
+                    <h3>Artist</h3>
+                    <p>{author || "テテフでLaTeX"}</p>
+                </div>
 
                 <div class="detail-block">
                     <h3>Software</h3>
-                    <p>{info.software}</p>
+                    <p>{software || "---"}</p>
                 </div>
 
                 {relatedWorks.length > 0 && (
                     <div class="related-mini-section">
                         <h3>Related Works</h3>
                         <div class="related-mini-grid">
-                            {relatedWorks.map(related => (
+                            {relatedWorks.map((related) => (
                                 <a href={`/works/${related.slug}`} class="related-mini-item">
-                                    <img src={related.src} alt={related.title} />
+                                    <img src={`/images/works/${related.image}`} alt={related.title} />
                                 </a>
                             ))}
                         </div>

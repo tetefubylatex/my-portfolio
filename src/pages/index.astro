@@ -4,41 +4,21 @@ import Infobox from '../components/Infobox.astro';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
+import { getCollection } from 'astro:content';
 
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
-// 1. JSONファイルをすべて取得
-const allJson = await Astro.glob('../assets/works/**/*.json');
+// Content Collectionsから works を取得
+const allWorks = await getCollection('works');
 
-// 2. 画像ファイルをすべて取得（これで画像の実体をつかみます）
-const allImages = await Astro.glob('../assets/works/**/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP}');
-
-// 3. JSONを日付順に並び替え
-const sortedJson = allJson
-  .sort((a, b) => {
-    const dateA = new Date(a.date.replaceAll('.', '-')).getTime();
-    const dateB = new Date(b.date.replaceAll('.', '-')).getTime();
-    return dateB - dateA;
-  })
-  .slice(0, 4);
-
-// 4. JSONに対応する画像を紐付ける
-const recentWorks = sortedJson.map((json) => {
-  const slug = json.id; // 例: "IMG_1511"
-
-  // allImagesの中から、ファイル名がこのslugと一致する画像を探す
-  const imageFile = allImages.find((img) => {
-    // パスの中からファイル名（IMG_1511）だけを抜き出して比較
-    const filename = img.default.src.split('/').pop().split('.')[0];
-    return filename.includes(slug);
-  });
-
-  return {
-    slug: slug,
-    // 見つかった画像の実体パスを入れる（見つからなければ空）
-    src: imageFile ? imageFile.default.src : ''
-  };
-});
+// 日付順に並び替えて最新4件を取得
+const recentWorks = allWorks
+  .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  .slice(0, 4)
+  .map((work) => ({
+    slug: work.data.slug,
+    src: `/images/works/${work.data.image}`
+  }));
 ---
 
 <!doctype html>

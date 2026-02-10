@@ -182,11 +182,17 @@ const { name, image, birth,oekakiapp,mail,nameEn,kiraiFood,workspace,twitter,blu
   .infobox-table td {
     padding: 3px 0;
   }
-  @media (max-width: 600px) {
+  @media (max-width: 720px) {
     .infobox {
       float: none;
       width: 100%;
-      margin: 0 0 1rem 0;
+      margin: 0 auto 1rem auto;
+      display: block;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .infobox-table {
+      margin: 0 auto;
     }
   }
 </style>

@@ -13,75 +13,111 @@ const posts = (await getCollection('blog')).sort(
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ja">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title="LaTeX Blog" description={SITE_DESCRIPTION} />
 		<style>
 			main {
-				width: 960px;
+				width: 100%;
+				max-width: 1080px;
+				margin: 0 auto;
+				padding: 2em 20px;
+				box-sizing: border-box;
 			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
+
+			h2 {
+				margin: 0 0 1rem 0;
+				font-size: 1.5rem;
+				color: rgb(var(--black));
+			}
+
+			.blog-section {
+				margin-top: 2rem;
+			}
+
+			.blog-grid {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
 				gap: 2rem;
 				list-style-type: none;
-				margin: 0;
+				margin: 2rem 0;
 				padding: 0;
 			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
+
+			.blog-item {
 				text-decoration: none;
-				transition: 0.2s ease;
+				transition: all 0.2s ease;
 			}
-			ul li:first-child {
+
+			.blog-item:hover {
+				transform: translateY(-4px);
+			}
+
+			.blog-item-image {
 				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
+				aspect-ratio: 16 / 9;
+				object-fit: cover;
+				border-radius: 8px;
+				margin-bottom: 0.75rem;
+				border: 1px solid #eee;
 			}
-			ul li:first-child img {
-				width: 100%;
+
+			.blog-item:hover .blog-item-image {
+				box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
+
+			.blog-title {
+				margin: 0 0 0.5rem 0;
+				font-size: 1rem;
+				font-weight: 600;
 				color: rgb(var(--black));
-				line-height: 1;
+				line-height: 1.3;
 			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
+
+			.blog-item:hover .blog-title {
 				color: rgb(var(--accent));
 			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
+
+			.blog-date {
+				margin: 0;
+				font-size: 0.85rem;
+				color: rgb(var(--gray));
 			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
+
+			.blog-item:hover .blog-date {
+				color: rgb(var(--accent));
+			}
+
+			.blog-description {
+				margin: 0.5rem 0 0 0;
+				font-size: 0.9rem;
+				color: #666;
+				line-height: 1.4;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+			}
+
+			@media (max-width: 768px) {
+				.blog-grid {
+					grid-template-columns: repeat(2, 1fr);
+					gap: 1.5rem;
 				}
-				ul li {
-					width: 100%;
-					text-align: center;
+			}
+
+			@media (max-width: 480px) {
+				.blog-grid {
+					grid-template-columns: 1fr;
+					gap: 1rem;
 				}
-				ul li:first-child {
-					margin-bottom: 0;
+
+				h2 {
+					font-size: 1.25rem;
 				}
-				ul li:first-child .title {
-					font-size: 1.563em;
+
+				main {
+					padding: 1em 15px;
 				}
 			}
 		</style>
@@ -89,25 +125,34 @@ const posts = (await getCollection('blog')).sort(
 	<body>
 		<Header />
 		<main>
-			<section>
-				<ul>
+			<div class="blog-section">
+				<ul class="blog-grid">
 					{
 						posts.map((post) => (
 							<li>
-								<a href={`/blog/${post.id}/`}>
+								<a href={`/blog/${post.id}/`} class="blog-item">
 									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
+										<Image 
+											width={400} 
+											height={225} 
+											src={post.data.heroImage} 
+											alt={post.data.title}
+											class="blog-item-image"
+										/>
 									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
+									<h3 class="blog-title">{post.data.title}</h3>
+									<p class="blog-date">
 										<FormattedDate date={post.data.pubDate} />
 									</p>
+									{post.data.description && (
+										<p class="blog-description">{post.data.description}</p>
+									)}
 								</a>
 							</li>
 						))
 					}
 				</ul>
-			</section>
+			</div>
 		</main>
 		<Footer />
 	</body>
