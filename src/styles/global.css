@@ -18,6 +18,14 @@
 }
 /* src/styles/global.css */
 
+/* 名前のやつ */
+.name-underline {
+    border-bottom: 3px solid #ffdd55; /* 黄色のライン */
+    padding-bottom: 1px;
+    font-weight: bold;
+}
+
+
 /* 画像を包むリンクやdivの設定 */
 .hover-popup {
   display: block;
