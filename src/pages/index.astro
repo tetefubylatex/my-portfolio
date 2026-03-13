@@ -5,6 +5,7 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { getCollection } from 'astro:content';
+import { execSync } from 'child_process';
 
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 
@@ -19,6 +20,34 @@ const recentWorks = allWorks
     slug: work.data.slug,
     src: `/images/works/${work.data.image}`
   }));
+
+// Gitのコミット履歴から更新ログを取得
+const gitLogOutput = execSync('git log --pretty=format:"%ad %s" --date=format:"%Y年%m月%d日" -5', { encoding: 'utf-8' });
+
+const linkMap = {
+  Home: '/',
+  Gallery: '/gallery',
+  Characters: '/characters',
+  Blog: '/blog',
+  Contact: '/contact'
+};
+
+const replaceLinks = (message) => {
+  let html = message;
+  for (const [word, path] of Object.entries(linkMap)) {
+    const regex = new RegExp(`\\b${word}\\b`, 'gi');
+    html = html.replace(regex, `<a href="${path}">${word}</a>`);
+  }
+  return html;
+};
+
+const updateLogs = gitLogOutput.split('\n').map(line => {
+  const match = line.match(/^(\d{4}年\d{2}月\d{2}日) (.+)$/);
+  if (match) {
+    return { date: match[1], message: replaceLinks(match[2]) };
+  }
+  return null;
+}).filter(Boolean);
 ---
 
 <!doctype html>
@@ -96,6 +125,16 @@ const recentWorks = allWorks
           リアルタイムで共有されます！
         </p>
       </section>
+
+      <!-- 更新ログセクション -->
+      <section class="update-logs" style="margin-top: 2rem; border-top: 1px solid #ccc; padding-top: 1rem;">
+        <h3>Recent Updates</h3>
+        <ul>
+          {updateLogs.map((log) => (
+            <li>{log.date} <span set:html={log.message}></span></li>
+          ))}
+        </ul>
+      </section>
 		</main>
 
     <Footer />
@@ -157,6 +196,14 @@ const recentWorks = allWorks
           margin-left: 2rem;
           float: right;
         }
+      }
+
+      /* 更新ログのスタイル */
+      .update-logs ul {
+        font-size: 0.9rem;
+      }
+      .update-logs li {
+        margin-bottom: 0.5rem;
       }
     </style>
 	</body>
